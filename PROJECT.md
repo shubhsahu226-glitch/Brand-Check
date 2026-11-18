@@ -91,9 +91,38 @@ Architecture rules:
 6. Insights and polish: insights, empty/loading/error states, testing.
 7. Deployment: hosting, Supabase, environment setup, end-to-end validation.
 
-## Phase 0 scope
+## Phase 1 scope — Authentication and workspaces
 
-Create the frontend shell with home, login and signup routes; an Express server with database-aware health check; a minimal Prisma User model; and a FastAPI service health check that detects OpenAI key configuration. Add example environment files, CI, and setup documentation. No authentication or product workflow is implemented in this phase.
+- Database schema updated with `User`, `Workspace`, `WorkspaceMember`, and `Invitation` models using roles `ADMIN`, `CREATOR`, and `REVIEWER`.
+- Backend authentication APIs:
+  - `POST /api/auth/signup`: Validates input, hashes password, creates user + workspace + admin member in a transaction, sets httpOnly refresh cookie, returns JWT accessToken and user/workspace details.
+  - `POST /api/auth/login`: Authenticates email/password, issues access token & refresh cookie.
+  - `POST /api/auth/logout`: Clears httpOnly refresh cookie.
+  - `POST /api/auth/refresh`: Verifies refresh cookie and issues a new access token.
+  - `GET /api/auth/me`: Authenticated endpoint returning user profile and workspace memberships.
+- Backend workspace and invitation APIs:
+  - `POST /api/workspaces`: Creates a new workspace and sets the creator as `ADMIN`.
+  - `GET /api/workspaces/current`: Retrieves the active workspace, membership role, and member count.
+  - `GET /api/workspaces/members`: Retrieves members of the workspace and pending invitations (for admins).
+  - `POST /api/workspaces/invite`: Admin-only endpoint to invite an email with role `CREATOR` or `REVIEWER`, generates a 7-day secure token, prevents duplicates, and sends email via Resend.
+  - `GET /api/workspaces/invitations/:token`: Public endpoint to inspect invitation details (workspace, role, expiration).
+  - `POST /api/workspaces/invitations/accept`: Authenticated endpoint verifying that the logged-in user matches the invited email, adding the user to the workspace with the invited role and marking invitation `ACCEPTED`.
+  - `PATCH /api/workspaces/members/:id/role`: Admin-only endpoint to update a workspace member's role (`ADMIN`, `CREATOR`, `REVIEWER`).
+- Frontend React authentication:
+  - React Hook Form + Zod schema validation for Signup (`name`, `email`, `password`, `confirmPassword`) and Login (`email`, `password`).
+  - `AuthContext` managing authenticated state, in-memory access token, current workspace, automatic background token refresh, and toast notifications via `react-hot-toast`.
+  - `ProtectedRoute` wrapper guarding routes and supporting role-based access.
+  - Automatic redirect to `/dashboard/admin` upon signup and `/dashboard` upon login.
+  - Dynamic Header with user profile badge, workspace name, role pill, and logout action.
+
+- Role-based dashboards:
+  - `AdminDashboard`: Displays workspace member list with live role switching, pending invitation queue, and placeholders for Phase 2 (Knowledge Base) and Phase 4/5 (Review & Audit).
+  - `CreatorDashboard`: Displays welcome summary with creator role badge and "My Drafts" placeholder for Phase 3.
+  - `ReviewerDashboard`: Displays review queue metrics and "Review Queue" placeholder for Phase 5.
+
+- Invitation UI:
+  - `InviteMemberPage` (`/invite`): Admin-only invitation form with email input, role selector (`CREATOR` / `REVIEWER`), immediate duplicate prevention, and invitation sent confirmation with quick-copy link.
+  - `AcceptInvitePage` (`/invite/accept`): Token-aware acceptance page that verifies invitation status, prompts unauthenticated guests to sign up or log in with the invited email, validates email matching, accepts membership into the workspace with the invited role, and redirects to the appropriate dashboard.
 
 ## Coding standards
 
@@ -108,4 +137,4 @@ Create the frontend shell with home, login and signup routes; an Express server 
 
 ## Current phase instructions
 
-Current phase: Phase 0 — Project setup. Do not implement authentication, workspace creation, invitations, brand uploads, Brand Knowledge Base, drafts, file upload, review, findings, approvals, or OpenAI feature calls unless specifically requested.
+Current phase: Phase 1 — Authentication and workspaces. Implemented Steps 1-6 (database schema, auth APIs, workspace APIs, frontend auth, role-based dashboards, and invitation UI). Do not implement brand document upload, Brand Knowledge Base, drafts, file upload, review engine, findings, approval workflow, or OpenAI feature calls.
