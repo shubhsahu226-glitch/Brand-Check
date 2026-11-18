@@ -1,0 +1,1 @@
+"""BrandCheck AI service package."""
