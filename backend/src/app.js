@@ -1,21 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
 const prisma = require('./lib/prisma');
-const authRoutes = require('./routes/authRoutes');
-const workspaceRoutes = require('./routes/workspaceRoutes');
 
 const app = express();
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-  })
-);
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json());
-app.use(cookieParser());
 app.use(morgan('dev'));
 
 app.get('/api/health', async (req, res) => {
@@ -34,9 +25,6 @@ app.get('/api/health', async (req, res) => {
     });
   }
 });
-
-app.use('/api/auth', authRoutes);
-app.use('/api/workspaces', workspaceRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ status: 'error', message: 'Route not found' });
