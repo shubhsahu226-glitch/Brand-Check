@@ -160,6 +160,18 @@ npm run dev
 
 ---
 
+## Vercel multi-service deployment
+
+Connect the repository root as one Vercel project. The root `vercel.json` defines three services: the Vite frontend, Express backend, and FastAPI AI service. The frontend uses `/api` in production, so browser requests stay on the shared domain.
+
+- Public routes: `/api/*` → backend; all other paths → frontend.
+- Internal service: AI service has no public rewrite. The backend receives its URL through the `AI_SERVICE_URL` service binding; do not create a Vercel environment variable with that name.
+- Configure `FRONTEND_URL` as the deployed site origin for invitation links. Configure database, JWT, Resend, OpenAI, and `INTERNAL_API_KEY` secrets in Vercel. The backend and AI service must use the same `INTERNAL_API_KEY` when backend-to-AI calls are implemented.
+
+The Phase 1 backend does not make AI-service requests yet. The binding prepares the private service connection for the planned integration; it does not expose the AI service publicly.
+
+---
+
 ## Running Test Suites & Quality Checks
 
 ### Backend Integration Tests (Vitest + Supertest)

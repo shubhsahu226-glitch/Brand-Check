@@ -2,6 +2,10 @@ import axios from 'axios';
 
 let inMemoryToken = null;
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
+
 export const setAuthToken = (token) => {
   inMemoryToken = token;
 };
@@ -11,7 +15,7 @@ export const getAuthToken = () => {
 };
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -71,7 +75,7 @@ api.interceptors.response.use(
 
       try {
         const refreshResponse = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/refresh`,
+          `${API_BASE_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         );

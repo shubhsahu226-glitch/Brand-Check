@@ -53,7 +53,7 @@ BrandCheck must never automatically publish content or silently rewrite a creato
 - **Backend:** Prisma aggregation queries, workspace analytics.
 
 ### Phase 7 — Production Deployment
-- Production containers, Render/Railway deployment, Vercel frontend hosting, production monitoring.
+- Vercel multi-service deployment for the Vite frontend, Express API, and FastAPI AI service; production environment configuration, database migration, and monitoring.
 
 ---
 
@@ -79,12 +79,13 @@ BrandCheck must never automatically publish content or silently rewrite a creato
 
 1. **Frontend Isolation:** The frontend calls only the Node.js backend. The frontend NEVER communicates directly with the Python AI service or OpenAI.
 2. **AI Service Hardening:** `CORSMiddleware` is completely removed from the AI service. All incoming requests require an `X-Internal-Key` header verified with constant-time `secrets.compare_digest`.
-3. **Multi-Tenant Data Isolation:** Every workspace resource is partitioned by `workspaceId`. Backend queries enforce tenant scoping via the `scoped(req)` Prisma helper. Cross-tenant access is rejected with `HTTP 403 Forbidden`.
-4. **Token Security Model:**
+3. **Vercel Service Boundaries:** The frontend is publicly routed at `/`; the backend is publicly routed at `/api/*`; the AI service has no public rewrite. The backend declares a service binding to the AI service through `AI_SERVICE_URL`. Service bindings provide connectivity but do not replace the AI service's `X-Internal-Key` authorization. The Phase 1 code has not implemented backend-to-AI request calls yet.
+4. **Multi-Tenant Data Isolation:** Every workspace resource is partitioned by `workspaceId`. Backend queries enforce tenant scoping via the `scoped(req)` Prisma helper. Cross-tenant access is rejected with `HTTP 403 Forbidden`.
+5. **Token Security Model:**
    - **Access Tokens:** Short-lived JWTs (15 minutes) kept exclusively in frontend memory. Payload contains `userId`, `email`, `role`, and `workspaceId`.
    - **Refresh Tokens:** Long-lived (7 days) cryptographically secure random tokens stored hashed (`SHA-256`) in the database and delivered in `httpOnly`, `sameSite: 'lax'`, `secure` cookies with path `/api/auth`.
    - **Token Rotation & Family Revocation:** Refreshing rotates the token. If an already-consumed token is reused, the entire token family is revoked immediately to prevent replay attacks.
-5. **Constant-Time Timing Protection:** Password verification uses `bcrypt.compare`. If an email is not found, a constant-time `fakeHash` is compared against to prevent user enumeration via timing attacks.
+6. **Constant-Time Timing Protection:** Password verification uses `bcrypt.compare`. If an email is not found, a constant-time `fakeHash` is compared against to prevent user enumeration via timing attacks.
 
 ---
 
