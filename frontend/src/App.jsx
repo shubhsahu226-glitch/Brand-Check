@@ -18,6 +18,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import HomePage from './pages/HomePage';
 import AdminDashboard from './pages/AdminDashboard';
 import CreatorDashboard from './pages/CreatorDashboard';
 import ReviewerDashboard from './pages/ReviewerDashboard';
@@ -164,60 +165,7 @@ function Sidebar() {
   );
 }
 
-function HomePage() {
-  const { user } = useAuth();
 
-  return (
-    <div className="mx-auto max-w-4xl">
-      <p className="text-sm font-medium text-indigo-600">Polished Before Published</p>
-      <h1 className="mt-3 max-w-2xl text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-        Make every piece of content feel like your brand.
-      </h1>
-      <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-        BrandCheck helps your team review content against your brand guidelines, approved facts,
-        and accessibility standards before it goes live.
-      </p>
-      <div className="mt-8 flex flex-wrap gap-3">
-        {user ? (
-          <NavLink
-            to="/dashboard"
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
-          >
-            Go to dashboard <ArrowRight size={17} />
-          </NavLink>
-        ) : (
-          <>
-            <NavLink
-              to="/signup"
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
-            >
-              Get started <ArrowRight size={17} />
-            </NavLink>
-            <NavLink
-              to="/login"
-              className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              Log in
-            </NavLink>
-          </>
-        )}
-      </div>
-      <section className="mt-12 grid gap-4 sm:grid-cols-3" aria-label="How BrandCheck works">
-        {[
-          ['01', 'Set your standards', 'Bring your brand guidance and approved facts together.'],
-          ['02', 'Review with context', 'See clear findings linked to your standards.'],
-          ['03', 'Decide with confidence', 'Your people stay in control of every change.'],
-        ].map(([number, title, body]) => (
-          <article key={number} className="rounded-xl border border-slate-200 bg-white p-5">
-            <span className="text-xs font-semibold tracking-widest text-indigo-600">{number}</span>
-            <h2 className="mt-3 font-semibold text-slate-900">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
-          </article>
-        ))}
-      </section>
-    </div>
-  );
-}
 
 function DashboardRedirect() {
   const { user, currentWorkspace } = useAuth();
@@ -246,13 +194,35 @@ export default function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/invite/accept" element={<AcceptInvitePage />} />
+              <Route path="/accept-invite" element={<AcceptInvitePage />} />
 
               {/* Protected Dashboard Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<DashboardRedirect />} />
-                <Route path="/dashboard/admin" element={<AdminDashboard />} />
-                <Route path="/dashboard/creator" element={<CreatorDashboard />} />
-                <Route path="/dashboard/reviewer" element={<ReviewerDashboard />} />
+                <Route
+                  path="/dashboard/admin"
+                  element={
+                    <ProtectedRoute allowedRoles={['ADMIN']}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/creator"
+                  element={
+                    <ProtectedRoute allowedRoles={['CREATOR', 'ADMIN']}>
+                      <CreatorDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/reviewer"
+                  element={
+                    <ProtectedRoute allowedRoles={['REVIEWER', 'ADMIN']}>
+                      <ReviewerDashboard />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/invite"
                   element={

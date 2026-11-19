@@ -48,12 +48,15 @@ export default function InviteMemberPage() {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      const res = await api.post('/workspaces/invite', {
+      const res = await api.post('/invitations', {
         email: data.email,
         role: data.role,
       });
 
-      const { invitation, inviteUrl } = res.data.data;
+      const payload = res.data?.data || res.data;
+      const invitation = payload.invitation || payload;
+      const inviteUrl = payload.inviteUrl;
+
       setSentInvitation({
         email: invitation.email,
         role: invitation.role,
@@ -62,7 +65,11 @@ export default function InviteMemberPage() {
       toast.success(`Invitation sent to ${data.email}!`);
       reset();
     } catch (error) {
-      const msg = error.response?.data?.message || 'Failed to send invitation';
+      const msg =
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to send invitation';
       toast.error(msg);
     } finally {
       setIsSubmitting(false);
@@ -149,20 +156,21 @@ export default function InviteMemberPage() {
         ) : (
           <form className="mt-7 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label htmlFor="invite-email" className="block text-sm font-medium text-slate-700">
                 Email Address
-                <div className="relative mt-1.5">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                    <Mail size={16} />
-                  </div>
-                  <input
-                    className="form-input pl-10"
-                    type="email"
-                    placeholder="teammate@company.com"
-                    {...register('email')}
-                  />
-                </div>
               </label>
+              <div className="relative mt-1.5">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                  <Mail size={16} />
+                </div>
+                <input
+                  id="invite-email"
+                  className="form-input !mt-0 !pl-10"
+                  type="email"
+                  placeholder="teammate@company.com"
+                  {...register('email')}
+                />
+              </div>
               {errors.email && (
                 <p className="mt-1 text-xs text-rose-600">{errors.email.message}</p>
               )}

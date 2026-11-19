@@ -7,8 +7,6 @@ import {
   Clock,
   Sparkles,
   BookOpen,
-  CheckCircle2,
-  AlertCircle,
   RefreshCw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -26,8 +24,24 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       const res = await api.get('/workspaces/members');
-      setMembers(res.data.data.members || []);
-      setPendingInvitations(res.data.data.pendingInvitations || []);
+      const membersList =
+        res.data?.data?.members || (Array.isArray(res.data) ? res.data : []);
+      setMembers(membersList);
+
+      // Fetch pending invitations
+      try {
+        const invRes = await api.get('/invitations');
+        const invData = invRes.data?.data || invRes.data;
+        if (Array.isArray(invData)) {
+          setPendingInvitations(invData);
+        } else if (res.data?.data?.pendingInvitations) {
+          setPendingInvitations(res.data.data.pendingInvitations);
+        }
+      } catch (_e) {
+        if (res.data?.data?.pendingInvitations) {
+          setPendingInvitations(res.data.data.pendingInvitations);
+        }
+      }
     } catch (error) {
       console.error('Failed to load workspace members:', error);
       toast.error('Failed to load workspace members');
@@ -43,11 +57,16 @@ export default function AdminDashboard() {
   const handleRoleChange = async (memberId, newRole) => {
     try {
       setUpdatingId(memberId);
-      await api.patch(`/workspaces/members/${memberId}/role`, { role: newRole });
+      await api.patch(`/workspaces/members/${memberId}/role`, {
+        role: newRole,
+      });
       toast.success(`Role updated to ${newRole}`);
       await fetchMembers();
     } catch (error) {
-      const msg = error.response?.data?.message || 'Failed to update member role';
+      const msg =
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        'Failed to update member role';
       toast.error(msg);
     } finally {
       setUpdatingId(null);
@@ -66,7 +85,10 @@ export default function AdminDashboard() {
                 ADMIN
               </span>
               <span className="text-xs font-medium text-slate-500">
-                Workspace: <strong className="text-slate-800">{currentWorkspace?.name}</strong>
+                Workspace:{' '}
+                <strong className="text-slate-800">
+                  {currentWorkspace?.name}
+                </strong>
               </span>
             </div>
             <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
@@ -99,17 +121,23 @@ export default function AdminDashboard() {
         <div className="mt-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-6 sm:grid-cols-3">
           <div className="rounded-xl bg-slate-50 p-4">
             <p className="text-xs font-medium text-slate-500">Active Members</p>
-            <p className="mt-1.5 text-2xl font-bold text-slate-900">{members.length}</p>
+            <p className="mt-1.5 text-2xl font-bold text-slate-900">
+              {members.length}
+            </p>
           </div>
           <div className="rounded-xl bg-slate-50 p-4">
-            <p className="text-xs font-medium text-slate-500">Pending Invitations</p>
+            <p className="text-xs font-medium text-slate-500">
+              Pending Invitations
+            </p>
             <p className="mt-1.5 text-2xl font-bold text-slate-900">
               {pendingInvitations.length}
             </p>
           </div>
           <div className="col-span-2 rounded-xl bg-slate-50 p-4 sm:col-span-1">
             <p className="text-xs font-medium text-slate-500">Your Permission</p>
-            <p className="mt-1.5 text-2xl font-bold text-indigo-600">Full Access</p>
+            <p className="mt-1.5 text-2xl font-bold text-indigo-600">
+              Full Access
+            </p>
           </div>
         </div>
       </div>
@@ -119,9 +147,13 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users size={20} className="text-indigo-600" />
-            <h2 className="text-lg font-semibold text-slate-900">Workspace Members</h2>
+            <h2 className="text-lg font-semibold text-slate-900">
+              Workspace Members
+            </h2>
           </div>
-          <span className="text-xs text-slate-500">{members.length} member(s)</span>
+          <span className="text-xs text-slate-500">
+            {members.length} member(s)
+          </span>
         </div>
 
         {loading ? (
@@ -156,7 +188,9 @@ export default function AdminDashboard() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-slate-600">{m.user?.email}</td>
+                    <td className="px-4 py-3.5 text-slate-600">
+                      {m.user?.email}
+                    </td>
                     <td className="px-4 py-3.5">
                       <span
                         className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${
@@ -178,7 +212,9 @@ export default function AdminDashboard() {
                         <select
                           value={m.role}
                           disabled={updatingId === m.id}
-                          onChange={(e) => handleRoleChange(m.id, e.target.value)}
+                          onChange={(e) =>
+                            handleRoleChange(m.id, e.target.value)
+                          }
                           className="rounded border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-indigo-500"
                         >
                           <option value="CREATOR">Creator</option>
@@ -216,7 +252,9 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-slate-100">
                   {pendingInvitations.map((inv) => (
                     <tr key={inv.id}>
-                      <td className="px-4 py-2.5 font-medium text-slate-800">{inv.email}</td>
+                      <td className="px-4 py-2.5 font-medium text-slate-800">
+                        {inv.email}
+                      </td>
                       <td className="px-4 py-2.5">
                         <span className="rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
                           {inv.role}
@@ -241,7 +279,9 @@ export default function AdminDashboard() {
 
       {/* Placeholder Cards for Future Phases */}
       <div className="space-y-4">
-        <h2 className="text-base font-semibold text-slate-800">Upcoming Features</h2>
+        <h2 className="text-base font-semibold text-slate-800">
+          Upcoming Features
+        </h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
@@ -250,10 +290,13 @@ export default function AdminDashboard() {
             <span className="rounded bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
               Phase 2: Brand Knowledge Base
             </span>
-            <h3 className="mt-2.5 font-semibold text-slate-900">Brand Documents & Guidelines</h3>
+            <h3 className="mt-2.5 font-semibold text-slate-900">
+              Brand Documents & Guidelines
+            </h3>
             <p className="mt-1 text-xs leading-5 text-slate-500">
-              Upload PDF and Word style guides, approved product claims, and voice guidelines. AI
-              will extract structured brand rules for your workspace.
+              Upload PDF and Word style guides, approved product claims, and voice
+              guidelines. AI will extract structured brand rules for your
+              workspace.
             </p>
           </div>
 
@@ -264,10 +307,12 @@ export default function AdminDashboard() {
             <span className="rounded bg-purple-50 px-2 py-0.5 text-[11px] font-semibold text-purple-700">
               Phase 4 & 5: Review & Audit
             </span>
-            <h3 className="mt-2.5 font-semibold text-slate-900">Audit Logs & Team Metrics</h3>
+            <h3 className="mt-2.5 font-semibold text-slate-900">
+              Audit Logs & Team Metrics
+            </h3>
             <p className="mt-1 text-xs leading-5 text-slate-500">
-              Track content approvals, reviewer turnaround times, and adherence trends across your
-              team.
+              Track content approvals, reviewer turnaround times, and adherence
+              trends across your team.
             </p>
           </div>
         </div>
@@ -275,4 +320,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-

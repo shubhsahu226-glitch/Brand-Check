@@ -1,140 +1,217 @@
 # BrandCheck Project Context
 
-This document is the source of truth for project scope and implementation decisions.
+This document is the source of truth for project scope, architecture, data contracts, and implementation decisions.
 
-## Product rule
+## Product Rule (Non-Negotiable)
 
 BrandCheck must never automatically publish content or silently rewrite a creator's draft. AI may extract brand knowledge, review drafts, explain findings, and suggest corrections. People accept, edit, or dismiss suggestions, review and approve content, and make the final publication decision.
 
-## JavaScript-based tech stack
+## JavaScript-Based Tech Stack
 
-- Frontend: React, Vite, JavaScript, Tailwind CSS
-- Backend: Node.js, Express, JavaScript, Prisma
-- Database: Supabase PostgreSQL
-- AI service: Python, FastAPI, OpenAI SDK
-- Storage: Supabase Storage
-- Vector search: Supabase PostgreSQL with pgvector
-- Email: Resend
-- Hosting: Vercel (frontend), Render or Railway (backend)
+- **Frontend:** React 19, Vite, JavaScript (`.jsx`, `.js`), Tailwind CSS, Lucide React, React Hook Form, Zod, React Hot Toast
+- **Backend:** Node.js, Express, JavaScript (CommonJS), Prisma ORM, bcryptjs, jsonwebtoken, cookie-parser, Zod, Resend
+- **Database:** Supabase PostgreSQL (with pgvector enabled)
+- **AI Service:** Python 3.12+, FastAPI, Uvicorn, OpenAI SDK, Pydantic, Pytest, Ruff
+- **Storage:** Supabase Storage (for Phase 2+ document and asset storage)
+- **Email:** Resend (transactional invitation delivery)
+- **Testing:** Vitest + Supertest (Backend), Pytest + HTTPX (AI Service), Vite build + ESLint (Frontend)
 
-Frontend and backend application code must use JavaScript. TypeScript is not permitted there. Python type hints are expected in ai-service.
+*Constraint:* Frontend and backend application code must use JavaScript. TypeScript is strictly prohibited in frontend and backend. Python with type hints is expected in `ai-service`.
 
-## Phase-wise libraries
+---
 
-### Phase 0 — Project setup
+## Phase Roadmap & Library Policy
 
-- Frontend: react, react-dom, react-router-dom, axios, tailwindcss, lucide-react, clsx, tailwind-merge
-- Backend: express, cors, dotenv, morgan, prisma, @prisma/client, zod
-- AI service: fastapi, uvicorn, openai, python-dotenv, pydantic
-- External: Supabase PostgreSQL
+### Phase 0 — Project Setup (Complete)
+- Monorepo structure, initial services, health checks, repo hygiene, CI workflows.
 
-### Phase 1 — Authentication and workspaces
+### Phase 1 — Authentication & Workspaces (Complete)
+- **Backend:** `bcryptjs`, `jsonwebtoken`, `cookie-parser`, `zod`, `resend`, `@prisma/client`.
+- **Frontend:** `react-hook-form`, `zod`, `@hookform/resolvers`, `react-hot-toast`, `lucide-react`.
+- **AI Service:** `fastapi`, `uvicorn`, `openai`, `pydantic`, `pytest`, `httpx`, `ruff`.
 
-- Frontend: react-hook-form, zod, react-hot-toast
-- Backend: bcryptjs, jsonwebtoken, cookie-parser, zod, resend
+### Phase 2 — Brand Knowledge Base (Next Up)
+- **Frontend:** `@tanstack/react-query`, file upload UI components, guideline rule editor.
+- **Backend:** `multer`, `pdf-parse`, `mammoth`, `zod`.
+- **AI Service:** `pypdf`, `python-docx`, `python-pptx`, `openai`, `pgvector`.
+- **External:** Supabase Storage, OpenAI Embeddings.
 
-### Phase 2 — Brand Knowledge Base
+### Phase 3 — Draft Intake
+- **Frontend:** Drag-and-drop upload UI, rich text editor integration.
+- **Backend:** Draft storage, version tracking, Supabase Storage integration.
 
-- Frontend: @tanstack/react-query, file upload UI components
-- Backend: multer, pdf-parse, mammoth, zod
-- AI service: pypdf, python-docx, python-pptx, openai, pgvector
-- External: Supabase Storage, OpenAI
+### Phase 4 — Brand Check Review Engine
+- **Frontend:** Highlighting, suggestion accept/dismiss UI, side-by-side diffing.
+- **Backend:** Rule checking pipeline, AI service integration, vector retrieval.
 
-### Phase 3 — Draft intake
+### Phase 5 — Review and Approval
+- **Frontend:** Review queue, threaded comments, formal approval/rejection actions.
+- **Backend:** Audit trail, decision logging, status transitions.
 
-- Frontend: @tanstack/react-query, react-hook-form, drag-and-drop upload library
-- Backend: multer, zod, Supabase Storage SDK
-- AI service: file extraction libraries
+### Phase 6 — Insights and Polish
+- **Frontend:** Recharts, compliance trends, skeleton loaders.
+- **Backend:** Prisma aggregation queries, workspace analytics.
 
-### Phase 4 — Brand Check review engine
+### Phase 7 — Production Deployment
+- Production containers, Render/Railway deployment, Vercel frontend hosting, production monitoring.
 
-- Frontend: highlighting and diff UI libraries
-- Backend: zod; optionally bullmq and ioredis
-- AI service: openai, pgvector; optionally langchain and redis
+---
 
-### Phase 5 — Review and approval
+## Architecture & Security Principles
 
-- Frontend: timeline and comments UI components
-- Backend: zod, resend
+```text
+┌─────────────────┐       HTTPS / Cookies       ┌────────────────────────┐
+│  React Frontend │ ──────────────────────────> │ Node.js Express Backend│
+└─────────────────┘                             └──────────┬─────────────┘
+                                                           │
+                      ┌────────────────────────────────────┼───────────────────────────┐
+                      │ Internal HTTP + X-Internal-Key     │ Prisma ORM (Pooler/Direct)│
+                      ▼                                    ▼                           ▼
+            ┌──────────────────┐               ┌───────────────────────┐   ┌───────────────────┐
+            │Python AI Service │               │ Supabase PostgreSQL   │   │  Resend Email API │
+            └─────────┬────────┘               └───────────────────────┘   └───────────────────┘
+                      │ OpenAI API
+                      ▼
+            ┌──────────────────┐
+            │   OpenAI Cloud   │
+            └──────────────────┘
+```
 
-### Phase 6 — Insights and polish
+1. **Frontend Isolation:** The frontend calls only the Node.js backend. The frontend NEVER communicates directly with the Python AI service or OpenAI.
+2. **AI Service Hardening:** `CORSMiddleware` is completely removed from the AI service. All incoming requests require an `X-Internal-Key` header verified with constant-time `secrets.compare_digest`.
+3. **Multi-Tenant Data Isolation:** Every workspace resource is partitioned by `workspaceId`. Backend queries enforce tenant scoping via the `scoped(req)` Prisma helper. Cross-tenant access is rejected with `HTTP 403 Forbidden`.
+4. **Token Security Model:**
+   - **Access Tokens:** Short-lived JWTs (15 minutes) kept exclusively in frontend memory. Payload contains `userId`, `email`, `role`, and `workspaceId`.
+   - **Refresh Tokens:** Long-lived (7 days) cryptographically secure random tokens stored hashed (`SHA-256`) in the database and delivered in `httpOnly`, `sameSite: 'lax'`, `secure` cookies with path `/api/auth`.
+   - **Token Rotation & Family Revocation:** Refreshing rotates the token. If an already-consumed token is reused, the entire token family is revoked immediately to prevent replay attacks.
+5. **Constant-Time Timing Protection:** Password verification uses `bcrypt.compare`. If an email is not found, a constant-time `fakeHash` is compared against to prevent user enumeration via timing attacks.
 
-- Frontend: recharts, skeleton loaders
-- Backend: Prisma aggregation queries
+---
 
-### Phase 7 — Deployment
+## Finalized Data Models (Prisma)
 
-- Frontend: Vite production build
-- Backend: production Node.js process configuration
-- AI service: Uvicorn production configuration
+### `User`
+- `id` (cuid, primary key)
+- `email` (string, unique, lowercase, trimmed)
+- `passwordHash` (string, bcrypt cost 12)
+- `name` (string)
+- `role` (`ADMIN`, `CREATOR`, `REVIEWER` — workspace-level authority governed through membership)
+- `createdAt`, `updatedAt`
+- Relations: `memberships` (`WorkspaceMember[]`), `refreshTokens` (`RefreshToken[]`), `sentInvitations` (`Invitation[]`)
 
-## Architecture
+### `Workspace`
+- `id` (cuid, primary key)
+- `name` (string)
+- `slug` (string, unique)
+- `createdAt`, `updatedAt`
+- Relations: `members` (`WorkspaceMember[]`), `invitations` (`Invitation[]`)
 
-React frontend → Node.js + Express API → Supabase PostgreSQL and Storage. The backend calls the Python FastAPI service for AI-heavy work; the AI service calls OpenAI. Findings are saved in Supabase and shown in the React review workspace.
+### `WorkspaceMember`
+- `id` (cuid, primary key)
+- `workspaceId` (foreign key -> `Workspace.id`)
+- `userId` (foreign key -> `User.id`)
+- `role` (`ADMIN`, `CREATOR`, `REVIEWER`)
+- `createdAt`, `updatedAt`
+- Unique constraint: `[workspaceId, userId]`
 
-Architecture rules:
+### `Invitation`
+- `id` (cuid, primary key)
+- `workspaceId` (foreign key -> `Workspace.id`)
+- `inviterId` (foreign key -> `User.id`)
+- `email` (string, lowercase)
+- `role` (`CREATOR`, `REVIEWER`)
+- `tokenHash` (string, unique, SHA-256 hash of raw invite token)
+- `status` (`PENDING`, `ACCEPTED`, `EXPIRED`, `REVOKED`)
+- `expiresAt` (timestamp, 7 days from creation)
+- `createdAt`, `updatedAt`
+- Index: `[tokenHash]`, `[workspaceId, email]`
 
-1. The frontend calls only the Node.js backend and never calls OpenAI directly.
-2. The backend calls the Python AI service for AI-heavy work.
-3. Workspace data is isolated by `workspace_id`.
-4. Each AI finding has an explanation and source reference and links to a brand rule, approved fact, or asset.
-5. AI outputs use structured JSON. Do not train a custom model in the MVP.
+### `RefreshToken`
+- `id` (cuid, primary key)
+- `userId` (foreign key -> `User.id`)
+- `tokenHash` (string, unique, SHA-256 hash)
+- `family` (string, UUID identifying token generation chain)
+- `isRevoked` (boolean, default `false`)
+- `expiresAt` (timestamp, 7 days from creation)
+- `createdAt`
 
-## Development phases
+---
 
-0. Project setup: monorepo, frontend, backend, AI service, Supabase connection, health checks, docs, CI.
-1. Authentication and workspaces: signup, login, roles, invitations, role-based dashboards.
-2. Brand Knowledge Base: document upload, extraction, editable rules and approved facts.
-3. Draft intake: creator dashboard, text and file intake, versioning.
-4. Review engine: rule checks, retrieval, AI review, explainable findings and suggestions.
-5. Review and approval: queue, comments, decisions, history and audit trail.
-6. Insights and polish: insights, empty/loading/error states, testing.
-7. Deployment: hosting, Supabase, environment setup, end-to-end validation.
+## Finalized API Contracts
 
-## Phase 1 scope — Authentication and workspaces
+### Authentication APIs (`/api/auth`)
+- `POST /api/auth/signup`: Creates user + workspace + admin member in an atomic transaction. Sets refresh cookie, returns access token + user + workspace payload.
+- `POST /api/auth/login`: Authenticates credentials, rotates refresh token cookie, returns access token + user profile.
+- `POST /api/auth/refresh`: Verifies httpOnly refresh cookie, issues rotated refresh cookie and new 15-minute access token.
+- `POST /api/auth/logout`: Revokes refresh token in database, clears httpOnly cookie.
+- `GET /api/me`: Returns authenticated user profile, workspace memberships, and active workspace details.
 
-- Database schema updated with `User`, `Workspace`, `WorkspaceMember`, and `Invitation` models using roles `ADMIN`, `CREATOR`, and `REVIEWER`.
-- Backend authentication APIs:
-  - `POST /api/auth/signup`: Validates input, hashes password, creates user + workspace + admin member in a transaction, sets httpOnly refresh cookie, returns JWT accessToken and user/workspace details.
-  - `POST /api/auth/login`: Authenticates email/password, issues access token & refresh cookie.
-  - `POST /api/auth/logout`: Clears httpOnly refresh cookie.
-  - `POST /api/auth/refresh`: Verifies refresh cookie and issues a new access token.
-  - `GET /api/auth/me`: Authenticated endpoint returning user profile and workspace memberships.
-- Backend workspace and invitation APIs:
-  - `POST /api/workspaces`: Creates a new workspace and sets the creator as `ADMIN`.
-  - `GET /api/workspaces/current`: Retrieves the active workspace, membership role, and member count.
-  - `GET /api/workspaces/members`: Retrieves members of the workspace and pending invitations (for admins).
-  - `POST /api/workspaces/invite`: Admin-only endpoint to invite an email with role `CREATOR` or `REVIEWER`, generates a 7-day secure token, prevents duplicates, and sends email via Resend.
-  - `GET /api/workspaces/invitations/:token`: Public endpoint to inspect invitation details (workspace, role, expiration).
-  - `POST /api/workspaces/invitations/accept`: Authenticated endpoint verifying that the logged-in user matches the invited email, adding the user to the workspace with the invited role and marking invitation `ACCEPTED`.
-  - `PATCH /api/workspaces/members/:id/role`: Admin-only endpoint to update a workspace member's role (`ADMIN`, `CREATOR`, `REVIEWER`).
-- Frontend React authentication:
-  - React Hook Form + Zod schema validation for Signup (`name`, `email`, `password`, `confirmPassword`) and Login (`email`, `password`).
-  - `AuthContext` managing authenticated state, in-memory access token, current workspace, automatic background token refresh, and toast notifications via `react-hot-toast`.
-  - `ProtectedRoute` wrapper guarding routes and supporting role-based access.
-  - Automatic redirect to `/dashboard/admin` upon signup and `/dashboard` upon login.
-  - Dynamic Header with user profile badge, workspace name, role pill, and logout action.
+### Workspace & Member APIs (`/api/workspaces` & `/api/invitations`)
+- `GET /api/workspaces/current`: Returns current workspace details and member count.
+- `GET /api/workspaces/members`: Returns workspace member list (and pending invitations for admins).
+- `PATCH /api/workspaces/members/:id/role`: Admin-only. Updates member role (`ADMIN`, `CREATOR`, `REVIEWER`). Protects against self-demotion if the user is the sole admin.
+- `POST /api/invitations`: Admin-only. Invites an email with role `CREATOR` or `REVIEWER`, creates 7-day secure token, sends email via Resend, and returns `{ invitation, inviteUrl }`.
+- `GET /api/invitations/:token`: Public. Inspects invitation validity, workspace name, invited email, role, and expiration.
+- `POST /api/invitations/accept`: Authenticated or Public. Accepts invitation by token, creates user if registering, joins workspace with invited role, marks invitation `ACCEPTED`.
 
-- Role-based dashboards:
-  - `AdminDashboard`: Displays workspace member list with live role switching, pending invitation queue, and placeholders for Phase 2 (Knowledge Base) and Phase 4/5 (Review & Audit).
-  - `CreatorDashboard`: Displays welcome summary with creator role badge and "My Drafts" placeholder for Phase 3.
-  - `ReviewerDashboard`: Displays review queue metrics and "Review Queue" placeholder for Phase 5.
+### AI Service APIs (`/ai`)
+- `GET /ai/health`: Unauthenticated probe returning service health, OpenAI configuration status, and model parameters (`LLM_MODEL_FAST`, `LLM_MODEL_REVIEW`, `EMBEDDING_MODEL`).
+- `GET /ai/protected-probe`: Internal endpoint requiring `X-Internal-Key` header matching `INTERNAL_API_KEY`.
 
-- Invitation UI:
-  - `InviteMemberPage` (`/invite`): Admin-only invitation form with email input, role selector (`CREATOR` / `REVIEWER`), immediate duplicate prevention, and invitation sent confirmation with quick-copy link.
-  - `AcceptInvitePage` (`/invite/accept`): Token-aware acceptance page that verifies invitation status, prompts unauthenticated guests to sign up or log in with the invited email, validates email matching, accepts membership into the workspace with the invited role, and redirects to the appropriate dashboard.
+---
 
-## Coding standards
+## Unified Response Envelopes
 
-- Use JavaScript in frontend and backend; do not add TypeScript there.
-- Use Python type hints in ai-service.
-- Keep components and modules focused.
-- Keep configuration in environment variables; never commit secrets.
-- Use Zod for backend request validation and Pydantic for Python validation.
-- Use conventional commits.
-- Add tests for important business logic.
-- Update this file when APIs, schema, or AI behavior change.
+### Success Envelope
+```json
+{
+  "status": "success",
+  "data": { ... }
+}
+```
 
-## Current phase instructions
+### Error Envelope
+```json
+{
+  "status": "error",
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Human-readable explanation",
+    "details": null
+  }
+}
+```
 
-Current phase: Phase 1 — Authentication and workspaces. Implemented Steps 1-6 (database schema, auth APIs, workspace APIs, frontend auth, role-based dashboards, and invitation UI). Do not implement brand document upload, Brand Knowledge Base, drafts, file upload, review engine, findings, approval workflow, or OpenAI feature calls.
+Standard Error Codes:
+- `BAD_REQUEST` (400)
+- `UNAUTHORIZED` (401)
+- `FORBIDDEN` (403)
+- `NOT_FOUND` (404)
+- `CONFLICT` (409)
+- `UNPROCESSABLE_ENTITY` (422)
+- `INTERNAL_SERVER_ERROR` (500)
+
+---
+
+## Testing & Quality Assurance Verification
+
+1. **Backend Test Suite (Vitest + Supertest):**
+   - 5 test suites, 56/56 passing tests.
+   - Deterministic test setup: runs against dedicated `TEST_DATABASE_URL` targeting `schema=test`. Fails safe if `TEST_DATABASE_URL` is missing or matches production.
+2. **AI Service Test Suite (Pytest + HTTPX):**
+   - 6/6 passing tests in `ai-service/tests/test_health.py`.
+   - Linted and formatted with `ruff` (0 errors, 0 warnings).
+3. **Frontend Test & Build (Vite + ESLint):**
+   - ESLint: 0 errors, 0 warnings.
+   - Vite Production Build: Clean compilation in ~3.3 seconds.
+
+---
+
+## Current Status & Next Steps
+
+* **Current Status:** Phase 1 (Authentication and Workspaces) is **100% complete, hardened, tested, and verified**.
+* **Next Phase:** **Phase 2 — Brand Knowledge Base**:
+  - Document upload and ingestion (PDF, DOCX, TXT via Supabase Storage).
+  - Document parsing and chunking.
+  - OpenAI embeddings generation (`text-embedding-3-small`) and storage in Supabase PostgreSQL via `pgvector`.
+  - Brand guideline rules extraction and editable rules / approved facts UI.

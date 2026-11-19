@@ -6,7 +6,10 @@ if (process.env.RESEND_API_KEY) {
 }
 
 async function sendInvitationEmail({ to, workspaceName, role, inviteUrl }) {
-  const from = process.env.EMAIL_FROM || 'BrandCheck <onboarding@resend.dev>';
+  const from =
+    process.env.MAIL_FROM ||
+    process.env.EMAIL_FROM ||
+    'BrandCheck <onboarding@resend.dev>';
   const subject = `You've been invited to join ${workspaceName} on BrandCheck`;
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">

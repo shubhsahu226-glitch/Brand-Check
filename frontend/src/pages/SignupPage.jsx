@@ -8,10 +8,19 @@ import { useAuth } from '../context/AuthContext';
 
 const signupSchema = z
   .object({
-    name: z.string().min(1, 'Name is required').trim(),
-    email: z.string().email('Please enter a valid email address').trim().toLowerCase(),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
+    name: z.string().min(2, 'Name must be at least 2 characters').trim(),
+    email: z
+      .string()
+      .email('Please enter a valid email address')
+      .trim()
+      .toLowerCase(),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
+    workspaceName: z
+      .string()
+      .min(2, 'Workspace name must be at least 2 characters')
+      .max(100)
+      .trim(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -39,6 +48,7 @@ export default function SignupPage() {
       email: emailParam,
       password: '',
       confirmPassword: '',
+      workspaceName: '',
     },
   });
 
@@ -55,6 +65,7 @@ export default function SignupPage() {
         name: data.name,
         email: data.email,
         password: data.password,
+        workspaceName: data.workspaceName,
       });
 
       if (result.success) {
@@ -74,7 +85,9 @@ export default function SignupPage() {
       <div className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
         <ShieldCheck size={23} />
       </div>
-      <h1 className="text-2xl font-semibold tracking-tight text-slate-950">Create your account</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
+        Create your account
+      </h1>
       <p className="mt-2 text-sm leading-6 text-slate-600">
         Get your team started with brand confident content.
       </p>
@@ -85,7 +98,11 @@ export default function SignupPage() {
         </div>
       )}
 
-      <form className="mt-7 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form
+        className="mt-7 space-y-4"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
         <div>
           <label className="block text-sm font-medium text-slate-700">
             Full Name
@@ -120,6 +137,23 @@ export default function SignupPage() {
 
         <div>
           <label className="block text-sm font-medium text-slate-700">
+            Workspace Name
+            <input
+              className="form-input"
+              type="text"
+              placeholder="e.g. Acme Marketing"
+              {...register('workspaceName')}
+            />
+          </label>
+          {errors.workspaceName && (
+            <p className="mt-1 text-xs text-rose-600">
+              {errors.workspaceName.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700">
             Password
             <input
               className="form-input"
@@ -130,7 +164,9 @@ export default function SignupPage() {
             />
           </label>
           {errors.password && (
-            <p className="mt-1 text-xs text-rose-600">{errors.password.message}</p>
+            <p className="mt-1 text-xs text-rose-600">
+              {errors.password.message}
+            </p>
           )}
         </div>
 
@@ -146,33 +182,32 @@ export default function SignupPage() {
             />
           </label>
           {errors.confirmPassword && (
-            <p className="mt-1 text-xs text-rose-600">{errors.confirmPassword.message}</p>
+            <p className="mt-1 text-xs text-rose-600">
+              {errors.confirmPassword.message}
+            </p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60"
+          className="mt-2 flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60"
         >
           {isSubmitting ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Creating account...</span>
-            </>
+            <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            'Create account'
+            'Create account & workspace'
           )}
         </button>
       </form>
 
-      <p className="mt-5 text-center text-sm text-slate-600">
+      <p className="mt-6 text-center text-xs text-slate-500">
         Already have an account?{' '}
         <NavLink
-          className="font-semibold text-indigo-600 hover:text-indigo-700"
-          to={tokenParam ? `/login?email=${encodeURIComponent(emailParam)}&token=${tokenParam}` : '/login'}
+          to="/login"
+          className="font-medium text-indigo-600 hover:text-indigo-500"
         >
-          Log in
+          Sign in
         </NavLink>
       </p>
     </section>

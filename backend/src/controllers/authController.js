@@ -1,17 +1,43 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const { z } = require('zod');
 const prisma = require('../lib/prisma');
 const {
   generateAccessToken,
-  generateRefreshToken,
-  verifyRefreshToken,
+  generateRandomToken,
+  hashToken,
 } = require('../lib/tokens');
+const { sendError } = require('../middleware/auth');
+
+const REFRESH_COOKIE_NAME = 'refreshToken';
+const REFRESH_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  path: '/api/auth',
+  maxAge: REFRESH_EXPIRY_MS,
+};
+
+const CLEAR_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  path: '/api/auth',
+};
 
 const signupSchema = z.object({
-  name: z.string().min(1, 'Name is required').trim(),
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100).trim(),
   email: z.string().email('Invalid email address').trim().toLowerCase(),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(72, 'Password must not exceed 72 characters'),
+  workspaceName: z
+    .string()
+    .min(2, 'Workspace name must be at least 2 characters')
+    .max(100)
+    .trim(),
 });
 
 const loginSchema = z.object({
@@ -19,35 +45,30 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  path: '/',
-};
-
-async function signup(req, res) {
+async function signup(req, res, next) {
   try {
     const parseResult = signupSchema.safeParse(req.body);
     if (!parseResult.success) {
-      return res.status(400).json({
-        status: 'error',
-        message: parseResult.error.errors[0]?.message || 'Validation failed',
-      });
+      const message = parseResult.error.errors[0]?.message || 'Validation failed';
+      return sendError(res, 400, 'VALIDATION_ERROR', message);
     }
 
-    const { name, email, password } = parseResult.data;
+    const { name, email, password, workspaceName } = parseResult.data;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return res.status(409).json({
-        status: 'error',
-        message: 'Email is already registered',
-      });
+      return sendError(
+        res,
+        409,
+        'CONFLICT',
+        'User with this email already exists'
+      );
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 12);
+    const rawRefreshToken = generateRandomToken(64);
+    const refreshTokenHash = hashToken(rawRefreshToken);
+    const refreshExpiresAt = new Date(Date.now() + REFRESH_EXPIRY_MS);
 
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -55,63 +76,66 @@ async function signup(req, res) {
           name,
           email,
           passwordHash,
-          role: 'ADMIN',
         },
       });
 
       const workspace = await tx.workspace.create({
         data: {
-          name: `${name}'s Workspace`,
-          members: {
-            create: {
-              userId: user.id,
-              role: 'ADMIN',
-            },
-          },
+          name: workspaceName,
+          createdById: user.id,
         },
       });
 
-      return { user, workspace };
+      const membership = await tx.membership.create({
+        data: {
+          userId: user.id,
+          workspaceId: workspace.id,
+          role: 'ADMIN',
+        },
+      });
+
+      await tx.refreshToken.create({
+        data: {
+          tokenHash: refreshTokenHash,
+          userId: user.id,
+          expiresAt: refreshExpiresAt,
+        },
+      });
+
+      return { user, workspace, membership };
     });
 
-    const accessToken = generateAccessToken(result.user);
-    const refreshToken = generateRefreshToken(result.user);
+    const accessToken = generateAccessToken({
+      userId: result.user.id,
+      email: result.user.email,
+    });
 
-    res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+    res.cookie(REFRESH_COOKIE_NAME, rawRefreshToken, COOKIE_OPTIONS);
 
     return res.status(201).json({
-      status: 'success',
-      data: {
-        user: {
-          id: result.user.id,
-          email: result.user.email,
-          name: result.user.name,
-          role: result.user.role,
-        },
-        workspace: {
-          id: result.workspace.id,
-          name: result.workspace.name,
-        },
-        accessToken,
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
       },
+      workspace: {
+        id: result.workspace.id,
+        name: result.workspace.name,
+        role: result.membership.role,
+      },
+      accessToken,
     });
   } catch (error) {
-    console.error('Signup error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Internal server error during signup',
-    });
+    return next(error);
   }
 }
 
-async function login(req, res) {
+async function login(req, res, next) {
   try {
     const parseResult = loginSchema.safeParse(req.body);
     if (!parseResult.success) {
-      return res.status(400).json({
-        status: 'error',
-        message: parseResult.error.errors[0]?.message || 'Validation failed',
-      });
+      const message = parseResult.error.errors[0]?.message || 'Validation failed';
+      return sendError(res, 400, 'VALIDATION_ERROR', message);
     }
 
     const { email, password } = parseResult.data;
@@ -119,205 +143,199 @@ async function login(req, res) {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        workspaceMembers: {
+        memberships: {
           include: {
             workspace: true,
           },
+          orderBy: { createdAt: 'asc' },
         },
       },
     });
 
     if (!user) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Invalid email',
-      });
+      return sendError(res, 401, 'UNAUTHENTICATED', 'Invalid email or password');
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Wrong password',
-      });
+      return sendError(res, 401, 'UNAUTHENTICATED', 'Invalid email or password');
     }
 
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    if (!user.memberships || user.memberships.length === 0) {
+      return sendError(
+        res,
+        403,
+        'FORBIDDEN',
+        'User has no active workspace memberships'
+      );
+    }
 
-    res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+    const activeMembership = user.memberships[0];
 
-    const workspaces = user.workspaceMembers.map((member) => ({
-      id: member.workspace.id,
-      name: member.workspace.name,
-      role: member.role,
-    }));
+    const rawRefreshToken = generateRandomToken(64);
+    const refreshTokenHash = hashToken(rawRefreshToken);
+    const refreshExpiresAt = new Date(Date.now() + REFRESH_EXPIRY_MS);
 
-    return res.status(200).json({
-      status: 'success',
+    await prisma.refreshToken.create({
       data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        },
-        workspaces,
-        accessToken,
+        tokenHash: refreshTokenHash,
+        userId: user.id,
+        expiresAt: refreshExpiresAt,
       },
     });
-  } catch (error) {
-    console.error('Login error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Internal server error during login',
+
+    const accessToken = generateAccessToken({
+      userId: user.id,
+      email: user.email,
     });
+
+    res.cookie(REFRESH_COOKIE_NAME, rawRefreshToken, COOKIE_OPTIONS);
+
+    return res.status(200).json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+      workspace: {
+        id: activeMembership.workspace.id,
+        name: activeMembership.workspace.name,
+        role: activeMembership.role,
+      },
+      accessToken,
+    });
+  } catch (error) {
+    return next(error);
   }
 }
 
-async function logout(req, res) {
+async function refresh(req, res, next) {
   try {
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
+    const rawRefreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+    if (!rawRefreshToken || typeof rawRefreshToken !== 'string') {
+      return sendError(res, 401, 'UNAUTHENTICATED', 'Missing refresh token');
+    }
+
+    const tokenHash = hashToken(rawRefreshToken);
+
+    const existingToken = await prisma.refreshToken.findUnique({
+      where: { tokenHash },
+      include: { user: true },
     });
 
+    // Reuse detection: if token exists but was already revoked, revoke all tokens for this user
+    if (existingToken && existingToken.revokedAt) {
+      await prisma.refreshToken.updateMany({
+        where: { userId: existingToken.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+      res.clearCookie(REFRESH_COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+      return sendError(
+        res,
+        401,
+        'UNAUTHENTICATED',
+        'Revoked refresh token reuse detected'
+      );
+    }
+
+    if (!existingToken) {
+      res.clearCookie(REFRESH_COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+      return sendError(
+        res,
+        401,
+        'UNAUTHENTICATED',
+        'Invalid or unrecognized refresh token'
+      );
+    }
+
+    if (new Date(existingToken.expiresAt) < new Date()) {
+      res.clearCookie(REFRESH_COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+      return sendError(res, 401, 'UNAUTHENTICATED', 'Refresh token expired');
+    }
+
+    // Token is valid: rotate token
+    const newRawRefreshToken = generateRandomToken(64);
+    const newTokenHash = hashToken(newRawRefreshToken);
+    const newExpiresAt = new Date(Date.now() + REFRESH_EXPIRY_MS);
+
+    await prisma.$transaction([
+      prisma.refreshToken.update({
+        where: { id: existingToken.id },
+        data: { revokedAt: new Date() },
+      }),
+      prisma.refreshToken.create({
+        data: {
+          tokenHash: newTokenHash,
+          userId: existingToken.userId,
+          expiresAt: newExpiresAt,
+        },
+      }),
+    ]);
+
+    const newAccessToken = generateAccessToken({
+      userId: existingToken.user.id,
+      email: existingToken.user.email,
+    });
+
+    res.cookie(REFRESH_COOKIE_NAME, newRawRefreshToken, COOKIE_OPTIONS);
+
     return res.status(200).json({
-      status: 'success',
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function logout(req, res, next) {
+  try {
+    const rawRefreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+    if (rawRefreshToken && typeof rawRefreshToken === 'string') {
+      try {
+        const tokenHash = hashToken(rawRefreshToken);
+        await prisma.refreshToken.updateMany({
+          where: { tokenHash, revokedAt: null },
+          data: { revokedAt: new Date() },
+        });
+      } catch (_e) {
+        // Ignore token hashing/lookup error on logout
+      }
+    }
+
+    res.clearCookie(REFRESH_COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+
+    return res.status(200).json({
       message: 'Logged out successfully',
     });
   } catch (error) {
-    console.error('Logout error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Internal server error during logout',
-    });
-  }
-}
-
-async function refresh(req, res) {
-  try {
-    const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
-    if (!refreshToken) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Missing token',
-      });
-    }
-
-    let decoded;
-    try {
-      decoded = verifyRefreshToken(refreshToken);
-    } catch (err) {
-      if (err instanceof jwt.TokenExpiredError) {
-        return res.status(401).json({
-          status: 'error',
-          message: 'Expired token',
-        });
-      }
-      return res.status(401).json({
-        status: 'error',
-        message: 'Invalid token',
-      });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-      },
-    });
-
-    if (!user) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'User not found',
-      });
-    }
-
-    const newAccessToken = generateAccessToken(user);
-
-    return res.status(200).json({
-      status: 'success',
-      data: {
-        accessToken: newAccessToken,
-        user,
-      },
-    });
-  } catch (error) {
-    console.error('Refresh error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Internal server error during token refresh',
-    });
+    return next(error);
   }
 }
 
 async function me(req, res) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        workspaceMembers: {
-          include: {
-            workspace: true,
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'User not found',
-      });
-    }
-
-    const workspaces = user.workspaceMembers.map((member) => ({
-      id: member.workspace.id,
-      name: member.workspace.name,
-      role: member.role,
-    }));
-
-    return res.status(200).json({
-      status: 'success',
-      data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
-        workspaces,
-      },
-    });
-  } catch (error) {
-    console.error('Me error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Internal server error fetching user profile',
-    });
+  if (!req.user || !req.currentMembership) {
+    return sendError(res, 401, 'UNAUTHENTICATED', 'Authentication required');
   }
+
+  return res.status(200).json({
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      name: req.user.name,
+    },
+    workspace: {
+      id: req.currentMembership.workspace.id,
+      name: req.currentMembership.workspace.name,
+      role: req.currentMembership.role,
+    },
+    role: req.currentMembership.role,
+  });
 }
 
 module.exports = {
   signup,
   login,
-  logout,
   refresh,
+  logout,
   me,
 };
-

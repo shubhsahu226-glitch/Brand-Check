@@ -76,7 +76,9 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
-        const newAccessToken = refreshResponse.data.data.accessToken;
+        const newAccessToken =
+          refreshResponse.data?.accessToken ||
+          refreshResponse.data?.data?.accessToken;
         setAuthToken(newAccessToken);
         processQueue(null, newAccessToken);
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;

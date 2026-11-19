@@ -14,18 +14,24 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function initAuth() {
       try {
-        const { data: refreshData } = await api.post('/auth/refresh');
-        const token = refreshData.data.accessToken;
+        const refreshRes = await api.post('/auth/refresh');
+        const token =
+          refreshRes.data?.accessToken || refreshRes.data?.data?.accessToken;
         setAuthToken(token);
 
-        // Fetch full profile and workspaces
-        const { data: meData } = await api.get('/auth/me');
-        setUser(meData.data.user);
-        setWorkspaces(meData.data.workspaces || []);
-        if (meData.data.workspaces && meData.data.workspaces.length > 0) {
-          setCurrentWorkspace(meData.data.workspaces[0]);
+        // Fetch full profile and active workspace
+        const meRes = await api.get('/auth/me');
+        const meData = meRes.data?.data || meRes.data;
+
+        setUser(meData.user);
+        const wsList = meData.workspaces || (meData.workspace ? [meData.workspace] : []);
+        setWorkspaces(wsList);
+        if (meData.workspace) {
+          setCurrentWorkspace(meData.workspace);
+        } else if (wsList.length > 0) {
+          setCurrentWorkspace(wsList[0]);
         }
-      } catch (err) {
+      } catch (_err) {
         setAuthToken(null);
         setUser(null);
         setWorkspaces([]);
@@ -38,21 +44,34 @@ export function AuthProvider({ children }) {
     initAuth();
   }, []);
 
-  const signup = async ({ name, email, password }) => {
+  const signup = async ({ name, email, password, workspaceName }) => {
     try {
-      const response = await api.post('/auth/signup', { name, email, password });
-      const { user: newUser, workspace, accessToken } = response.data.data;
+      const response = await api.post('/auth/signup', {
+        name,
+        email,
+        password,
+        workspaceName,
+      });
+      const data = response.data?.data || response.data;
+      const { user: newUser, workspace, accessToken } = data;
 
       setAuthToken(accessToken);
       setUser(newUser);
-      const wsList = [{ id: workspace.id, name: workspace.name, role: newUser.role }];
-      setWorkspaces(wsList);
-      setCurrentWorkspace(wsList[0]);
+      const ws = {
+        id: workspace.id,
+        name: workspace.name,
+        role: workspace.role || 'ADMIN',
+      };
+      setWorkspaces([ws]);
+      setCurrentWorkspace(ws);
 
       toast.success('Account and workspace created successfully!');
-      return { success: true, user: newUser, workspace };
+      return { success: true, user: newUser, workspace: ws };
     } catch (error) {
-      const message = error.response?.data?.message || 'Failed to create account';
+      const message =
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        'Failed to create account';
       toast.error(message);
       return { success: false, error: message };
     }
@@ -61,29 +80,50 @@ export function AuthProvider({ children }) {
   const login = async ({ email, password }) => {
     try {
       const response = await api.post('/auth/login', { email, password });
-      const { user: loggedInUser, workspaces: userWorkspaces, accessToken } = response.data.data;
+      const data = response.data?.data || response.data;
+      const { user: loggedInUser, workspace, workspaces: userWorkspaces, accessToken } =
+        data;
 
       setAuthToken(accessToken);
       setUser(loggedInUser);
-      setWorkspaces(userWorkspaces || []);
-      if (userWorkspaces && userWorkspaces.length > 0) {
-        setCurrentWorkspace(userWorkspaces[0]);
+      const wsList = userWorkspaces || (workspace ? [workspace] : []);
+      setWorkspaces(wsList);
+      if (workspace) {
+        setCurrentWorkspace(workspace);
+      } else if (wsList.length > 0) {
+        setCurrentWorkspace(wsList[0]);
       }
 
       toast.success(`Welcome back, ${loggedInUser.name}!`);
-      return { success: true, user: loggedInUser, workspaces: userWorkspaces };
+      return {
+        success: true,
+        user: loggedInUser,
+        workspace: workspace || wsList[0],
+      };
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      const message =
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        'Login failed';
       toast.error(message);
       return { success: false, error: message };
+    }
+  };
+
+  const setSession = ({ user: newUser, workspace: newWorkspace, accessToken }) => {
+    setAuthToken(accessToken);
+    setUser(newUser);
+    if (newWorkspace) {
+      setCurrentWorkspace(newWorkspace);
+      setWorkspaces([newWorkspace]);
     }
   };
 
   const logout = async () => {
     try {
       await api.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch (_error) {
+      // Ignore logout errors
     } finally {
       setAuthToken(null);
       setUser(null);
@@ -95,10 +135,14 @@ export function AuthProvider({ children }) {
 
   const refreshUser = async (targetWorkspaceId = null) => {
     try {
-      const { data: meData } = await api.get('/auth/me');
-      setUser(meData.data.user);
-      const wsList = meData.data.workspaces || [];
+      const meRes = await api.get('/auth/me');
+      const meData = meRes.data?.data || meRes.data;
+
+      setUser(meData.user);
+      const wsList =
+        meData.workspaces || (meData.workspace ? [meData.workspace] : []);
       setWorkspaces(wsList);
+
       if (targetWorkspaceId) {
         const target = wsList.find((w) => w.id === targetWorkspaceId);
         if (target) {
@@ -106,8 +150,14 @@ export function AuthProvider({ children }) {
           return;
         }
       }
-      if (wsList.length > 0) {
-        if (!currentWorkspace || !wsList.some((w) => w.id === currentWorkspace.id)) {
+
+      if (meData.workspace) {
+        setCurrentWorkspace(meData.workspace);
+      } else if (wsList.length > 0) {
+        if (
+          !currentWorkspace ||
+          !wsList.some((w) => w.id === currentWorkspace.id)
+        ) {
           setCurrentWorkspace(wsList[0]);
         }
       }
@@ -124,6 +174,7 @@ export function AuthProvider({ children }) {
     loading,
     signup,
     login,
+    setSession,
     logout,
     refreshUser,
     getAccessToken: getAuthToken,

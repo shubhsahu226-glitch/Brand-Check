@@ -1,66 +1,81 @@
 # BrandCheck
 
-BrandCheck helps teams review content against approved brand guidance before publication. AI may explain issues and suggest edits; people make all final decisions. The product must never silently rewrite or automatically publish content.
+BrandCheck is an enterprise brand compliance and review platform. It gives creative teams instant AI-assisted brand guideline checks, verified fact retrieval, and explainable findings before content goes live.
 
-## Core flow
+> **Core Product Rule (Human-Led by Design):**  
+> BrandCheck must never automatically publish content or silently rewrite a creator's draft. AI suggests and explains; people make all final publication decisions.
 
-Admin adds brand guidance → Creator drafts and checks content → Creator addresses findings → Reviewer approves or requests changes → BrandCheck saves the approved version and audit trail.
+---
 
-## Stack
+## Current Status: Phase 1 Complete (Production-Ready)
 
-- Frontend: React, Vite, JavaScript, Tailwind CSS
-- Backend: Node.js, Express, JavaScript, Prisma
-- Database: Supabase PostgreSQL
-- AI service: Python, FastAPI, OpenAI SDK
+- [x] **Phase 0 — Project Setup & Tooling:** Monorepo architecture, linting, formatting, CI pipelines, and hardened baseline configurations.
+- [x] **Phase 1 — Authentication & Workspaces:** Multi-tenant workspace isolation, role-based dashboards (`ADMIN`, `CREATOR`, `REVIEWER`), secure JWT + httpOnly refresh token cookies with family revocation, 7-day tokenized invitations, Resend email delivery, and an interactive landing page.
+- [ ] **Phase 2 — Brand Knowledge Base (Next):** Document ingestion (PDF, DOCX), vector embeddings (`text-embedding-3-small`), and editable brand rules.
 
-Frontend and backend use JavaScript, not TypeScript. Current phase is Phase 0: service setup and health checks. Login/signup are visual placeholders; product workflows are not implemented.
+---
 
-## Repository
+## Tech Stack
+
+| Layer | Technologies | Standards |
+|---|---|---|
+| **Frontend** | React 19, Vite, Tailwind CSS, Lucide React, React Hook Form, Zod | Pure JavaScript (`.jsx`, `.js`). No TypeScript. |
+| **Backend** | Node.js, Express, Prisma ORM, bcryptjs, jsonwebtoken, cookie-parser, Zod | Pure JavaScript (CommonJS). |
+| **Database** | Supabase PostgreSQL (pgvector enabled) | Tenant isolation by `workspace_id`. |
+| **AI Service** | Python 3.12+, FastAPI, Uvicorn, OpenAI SDK, Pydantic | Python with type hints. Pytest + Ruff. |
+| **Email** | Resend | Transactional workspace invitations. |
+
+---
+
+## Repository Structure
 
 ```text
 brand-check/
-├── frontend/                         # React + Vite browser application
-│   ├── .env.example                  # Frontend API URL example
-│   ├── index.html                    # Vite page entry point
-│   ├── package.json                  # Frontend dependencies and npm scripts
-│   ├── postcss.config.js             # PostCSS and Tailwind processing setup
-│   ├── tailwind.config.js            # Tailwind content paths and theme
-│   ├── vite.config.js                # Vite configuration and React plugin
-│   └── src/
-│       ├── App.jsx                   # Header, sidebar, home, login/signup routes
-│       ├── main.jsx                  # React entry point and router setup
-│       ├── styles.css                # Global styles and Tailwind directives
-│       └── lib/
-│           └── api.js                # Axios instance using VITE_API_BASE_URL
+├── frontend/                         # React 19 + Vite frontend
+│   ├── src/
+│   │   ├── pages/                    # Home, Login, Signup, Invite, Dashboards
+│   │   ├── components/               # ProtectedRoute, Layouts
+│   │   ├── context/                  # AuthContext with auto-refresh
+│   │   ├── lib/api.js                # Axios client with refresh interceptor
+│   │   └── styles.css                # Tailwind directives & keyframe animations
+│   ├── eslint.config.js              # ESLint 9 flat config
+│   └── vite.config.js                # Vite build config
 ├── backend/                          # Node.js + Express API
-│   ├── .env.example                  # Backend and database setting examples
-│   ├── package.json                  # Backend dependencies and npm scripts
 │   ├── prisma/
-│   │   └── schema.prisma             # PostgreSQL datasource and minimal User model
-│   └── src/
-│       ├── app.js                    # Express middleware, health endpoint, error handling
-│       ├── server.js                 # Loads environment and starts the HTTP server
-│       └── lib/
-│           └── prisma.js             # Shared Prisma client
-├── ai-service/                       # Python + FastAPI service
-│   ├── .env.example                  # OpenAI setting examples
-│   ├── requirements.txt              # Pinned Python dependencies
-│   └── app/
-│       ├── __init__.py               # Marks app as a Python package
-│       └── main.py                   # FastAPI app, CORS, OpenAI config, health endpoint
+│   │   ├── schema.prisma             # PostgreSQL schema (User, Workspace, Member, etc.)
+│   │   └── migrations/               # Version-controlled Prisma SQL migrations
+│   ├── src/
+│   │   ├── controllers/              # Auth, Invitation, Member controllers
+│   │   ├── middleware/auth.js        # requireAuth, requireRole, scoped(req)
+│   │   ├── lib/                      # tokens, errors, prisma, email
+│   │   └── app.js                    # Express app configuration
+│   ├── tests/                        # Vitest + Supertest integration test suite (56 tests)
+│   └── eslint.config.js              # ESLint 9 backend config
+├── ai-service/                       # Python FastAPI microservice
+│   ├── app/
+│   │   └── main.py                   # FastAPI app, constant-time internal key verification
+│   ├── tests/                        # Pytest test suite (6 tests)
+│   └── requirements.txt              # Pinned Python dependencies
 ├── .github/
-│   └── workflows/
-│       └── ci.yml                    # Dependency install, frontend build, Python syntax check
-├── .gitignore                       # Excludes secrets, dependencies, and generated files
-├── README.md                        # Project overview and local startup guide
-└── PROJECT.md                       # Product requirements, architecture, phases, and rules
+│   ├── workflows/ci.yml              # Multi-job GitHub Actions CI pipeline
+│   └── pull_request_template.md      # Standard PR template
+├── PROJECT.md                        # Architecture, data contracts, and decisions
+└── README.md                         # This file
 ```
 
-## Start locally
+---
 
-Requirements: Git, Node.js 20+, Python 3.10+, and a Supabase PostgreSQL URL for a connected backend health check. Clone the repository, then run each service in a separate terminal from the repository root.
+## Local Setup & Quickstart
 
-### 1. Backend — `http://localhost:5000`
+### Prerequisites
+- **Node.js** 20.x or later
+- **Python** 3.12 or later
+- **Git**
+- A **Supabase PostgreSQL** database connection URL (or local PostgreSQL instance)
+
+---
+
+### 1. Backend Setup
 
 ```powershell
 cd backend
@@ -68,19 +83,35 @@ npm install
 Copy-Item .env.example .env
 ```
 
-Set `DATABASE_URL` in `backend/.env`, then run:
+Populate `backend/.env` with your Supabase database credentials and secrets:
 
-```powershell
-npx prisma generate
-npx prisma db push
-npm run dev
+```env
+PORT=5000
+NODE_ENV=development
+DATABASE_URL="postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres"
+JWT_ACCESS_SECRET="your-32-character-secret-access-key"
+JWT_REFRESH_SECRET="your-32-character-secret-refresh-key"
+AI_SERVICE_URL="http://localhost:8000"
+INTERNAL_API_KEY="your_shared_internal_api_key_min_32_chars"
+FRONTEND_URL="http://localhost:5173"
+RESEND_API_KEY="re_optional_key_for_invites"
 ```
 
-Health check: `http://localhost:5000/api/health`.
+Apply database migrations:
+```powershell
+npx prisma migrate dev
+```
 
-### 2. AI service — `http://localhost:8000`
+Start the backend development server:
+```powershell
+npm run dev
+```
+*Health Check:* `http://localhost:5000/api/health`
 
-Create and activate a virtual environment before installing Python dependencies:
+---
+
+### 2. Python AI Service Setup
 
 ```powershell
 cd ai-service
@@ -90,29 +121,80 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Optionally set `OPENAI_API_KEY` in `ai-service/.env`, then start:
+Populate `ai-service/.env`:
+```env
+PORT=8000
+INTERNAL_API_KEY="your_shared_internal_api_key_min_32_chars"
+OPENAI_API_KEY="your_openai_api_key"
+LLM_MODEL_FAST="gpt-4o-mini"
+LLM_MODEL_REVIEW="gpt-4o"
+EMBEDDING_MODEL="text-embedding-3-small"
+```
 
+Start the AI microservice:
 ```powershell
 uvicorn app.main:app --reload --port 8000
 ```
+*Health Check:* `http://localhost:8000/ai/health`
 
-Health check: `http://localhost:8000/ai/health`. The key is optional in Phase 0; no OpenAI calls are made. For macOS/Linux, activate with `source .venv/bin/activate` and copy the env file with `cp .env.example .env`.
+---
 
-### 3. Frontend — `http://localhost:5173`
+### 3. Frontend Setup
 
 ```powershell
 cd frontend
 npm install
 Copy-Item .env.example .env
-npm run dev
 ```
 
-The Axios base URL comes from `VITE_API_BASE_URL` in `frontend/.env` (default: `http://localhost:5000/api`). For macOS/Linux, use `cp .env.example .env`.
+Ensure `frontend/.env` contains:
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
 
-## Environment files
+Start the Vite development server:
+```powershell
+npm run dev
+```
+*Open application:* `http://localhost:5173`
 
-Copy each service's `.env.example` to `.env` and add local credentials. `.env` files are ignored by Git; never commit real secrets.
+---
 
-## AI use disclosure
+## Running Test Suites & Quality Checks
 
-AI is intended to provide explainable findings and suggestions for human review. Development may also use AI assistance; maintainers review and own the code.
+### Backend Integration Tests (Vitest + Supertest)
+Backend tests run against a dedicated isolated schema (`schema=test`) using `TEST_DATABASE_URL`:
+```powershell
+cd backend
+npm test
+npm run lint
+```
+*Expected output:* 5 test files, 56/56 passing tests, 0 lint warnings.
+
+### AI Service Tests (Pytest + Ruff)
+```powershell
+cd ai-service
+.\.venv\Scripts\Activate.ps1
+python -m pytest tests -v
+ruff check .
+ruff format --check .
+```
+*Expected output:* 6 passing tests, all ruff checks passed.
+
+### Frontend Validation (ESLint + Vite Build)
+```powershell
+cd frontend
+npm run lint
+npm run build
+```
+*Expected output:* 0 errors, 0 warnings, clean production bundle in `frontend/dist/`.
+
+---
+
+## Security Model Overview
+
+1. **HttpOnly Refresh Cookies:** Refresh tokens are never exposed to browser JavaScript, preventing token exfiltration via XSS.
+2. **Refresh Token Rotation & Family Revocation:** Every token refresh revokes the existing token and issues a new one. If an invalid or revoked token is used, the entire family is revoked.
+3. **Tenant Scoping:** All database queries are filtered by `scoped(req)` using `workspaceId` extracted from the verified access token.
+4. **Timing Attack Protection:** Invalid login emails trigger constant-time bcrypt verification against a `fakeHash` to eliminate timing differences.
+5. **No Direct Browser-to-AI Communication:** `CORSMiddleware` is stripped from the AI service; all AI traffic is routed through the backend authenticated via `X-Internal-Key` with constant-time `secrets.compare_digest`.

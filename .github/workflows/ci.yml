@@ -2,11 +2,23 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
+  gitleaks:
+    name: Secret scan with Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   frontend:
-    name: Frontend install and build
+    name: Frontend lint and build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,12 +27,28 @@ jobs:
           node-version: 20
       - run: npm install
         working-directory: frontend
+      - run: npm run lint
+        working-directory: frontend
       - run: npm run build
         working-directory: frontend
 
   backend:
-    name: Backend dependency install
+    name: Backend lint and test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: brandcheck_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,9 +56,24 @@ jobs:
           node-version: 20
       - run: npm install
         working-directory: backend
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        working-directory: backend
+        env:
+          DATABASE_URL: 'postgresql://postgres:postgrespassword@localhost:5432/brandcheck_test'
+      - name: Backend Lint
+        run: npm run lint
+        working-directory: backend
+      - name: Backend Tests
+        run: npm test
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          DATABASE_URL: 'postgresql://postgres:postgrespassword@localhost:5432/brandcheck_dummy'
+          TEST_DATABASE_URL: 'postgresql://postgres:postgrespassword@localhost:5432/brandcheck_test'
 
   ai-service:
-    name: AI service install and syntax check
+    name: AI service install and check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

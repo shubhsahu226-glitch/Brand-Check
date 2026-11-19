@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -13,33 +14,30 @@ enum Role {
   REVIEWER
 }
 
-enum InvitationStatus {
-  PENDING
-  ACCEPTED
-  EXPIRED
-}
-
 model User {
-  id               String            @id @default(cuid())
-  email            String            @unique
-  name             String
-  passwordHash     String
-  role             Role              @default(CREATOR)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  workspaceMembers WorkspaceMember[]
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  memberships   Membership[]
+  refreshTokens RefreshToken[]
 }
 
 model Workspace {
-  id          String            @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  members     WorkspaceMember[]
+  createdById String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  members     Membership[]
   invitations Invitation[]
+
+  @@index([createdById])
 }
 
-model WorkspaceMember {
+model Membership {
   id          String    @id @default(cuid())
   userId      String
   workspaceId String
@@ -50,19 +48,35 @@ model WorkspaceMember {
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, workspaceId])
+  @@index([workspaceId])
+  @@index([userId])
 }
 
 model Invitation {
-  id          String           @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
   email       String
-  role        Role             @default(CREATOR)
-  token       String           @unique
-  status      InvitationStatus @default(PENDING)
+  role        Role      @default(CREATOR)
+  tokenHash   String    @unique
   expiresAt   DateTime
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, email])
+  @@index([tokenHash])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
 }
