@@ -1,0 +1,15 @@
+# Gitleaks configuration for BrandCheck repository
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignore example env files, documentation, CI workflows, and test mock files"
+paths = [
+  '''(?i)\.env\.example$''',
+  '''(?i)README\.md$''',
+  '''(?i)PROJECT\.md$''',
+  '''(?i)PROJECT_STATUS_AND_CONTEXT\.md$''',
+  '''(^|/)backend/tests/''',
+  '''(^|/)ai-service/tests/''',
+  '''(^|/)\.github/workflows/'''
+]

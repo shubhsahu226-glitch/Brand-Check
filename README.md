@@ -95,7 +95,7 @@ JWT_REFRESH_SECRET="your-32-character-secret-refresh-key"
 AI_SERVICE_URL="http://localhost:8000"
 INTERNAL_API_KEY="your_shared_internal_api_key_min_32_chars"
 FRONTEND_URL="http://localhost:5173"
-RESEND_API_KEY="re_optional_key_for_invites"
+RESEND_API_KEY="your_resend_api_key_here"
 ```
 
 Apply database migrations:
