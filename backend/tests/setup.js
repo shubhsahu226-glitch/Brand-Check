@@ -21,6 +21,4 @@ if (databaseUrl && testDatabaseUrl.trim() === databaseUrl.trim()) {
 
 // Redirect runtime DATABASE_URL and DIRECT_URL to the test database for test runs
 process.env.DATABASE_URL = testDatabaseUrl;
-if (process.env.TEST_DIRECT_URL) {
-  process.env.DIRECT_URL = process.env.TEST_DIRECT_URL;
-}
+process.env.DIRECT_URL = process.env.TEST_DIRECT_URL || testDatabaseUrl;
