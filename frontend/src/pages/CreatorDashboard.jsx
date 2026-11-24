@@ -54,27 +54,46 @@ export default function CreatorDashboard() {
         </div>
       </div>
 
-      {/* "My Drafts" Placeholder Section */}
+      {/* "My Drafts" Active Studio Section */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText size={20} className="text-emerald-600" />
-            <h2 className="text-lg font-semibold text-slate-900">My Drafts</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Draft Intake & Compliance Studio</h2>
           </div>
-          <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
-            Phase 3 feature
-          </span>
+          <NavLink
+            to="/drafts/new"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
+          >
+            <PlusCircle size={14} />
+            <span>Create Draft</span>
+          </NavLink>
         </div>
 
-        <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-10 text-center">
+        <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-emerald-600 shadow-sm">
-            <PlusCircle size={24} />
+            <Sparkles size={24} />
           </div>
-          <h3 className="mt-4 font-semibold text-slate-800">No drafts created yet</h3>
+          <h3 className="mt-4 font-semibold text-slate-800">Draft Intake & Review Studio Live</h3>
           <p className="mt-1.5 max-w-md text-xs leading-5 text-slate-500">
-            Draft creation, text paste, file upload, and versioning will be enabled in Phase 3. You
-            will be able to draft copy and run brand checks before submitting for team review.
+            Write or paste marketing copy, run instant AI brand compliance audits against verified brand rules,
+            and review inline suggestions before publishing.
           </p>
+          <div className="mt-4 flex items-center gap-3">
+            <NavLink
+              to="/drafts"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            >
+              <span>View All Drafts</span>
+            </NavLink>
+            <NavLink
+              to="/drafts/new"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
+            >
+              <PlusCircle size={14} />
+              <span>Start New Draft</span>
+            </NavLink>
+          </div>
         </div>
       </div>
 

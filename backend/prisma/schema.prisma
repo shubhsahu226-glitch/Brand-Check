@@ -44,6 +44,25 @@ enum KnowledgeSource {
   MANUAL
 }
 
+enum DraftStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+enum SuggestionSeverity {
+  ERROR
+  WARNING
+  INFO
+}
+
+enum SuggestionStatus {
+  PENDING
+  ACCEPTED
+  DISMISSED
+}
+
 model User {
   id                    String          @id @default(cuid())
   email                 String          @unique
@@ -56,6 +75,8 @@ model User {
   brandDocuments        BrandDocument[]
   createdKnowledgeItems KnowledgeItem[] @relation("CreatedKnowledgeItems")
   approvedKnowledgeItems KnowledgeItem[] @relation("ApprovedKnowledgeItems")
+  createdDrafts         Draft[]         @relation("CreatedDrafts")
+  reviewedDrafts        Draft[]         @relation("ReviewedDrafts")
   auditEvents           AuditEvent[]
 }
 
@@ -69,6 +90,7 @@ model Workspace {
   invitations    Invitation[]
   brandDocuments BrandDocument[]
   knowledgeItems KnowledgeItem[]
+  drafts         Draft[]
   auditEvents    AuditEvent[]
 
   @@index([createdById])
@@ -166,6 +188,7 @@ model KnowledgeItem {
   document       BrandDocument?  @relation(fields: [documentId], references: [id], onDelete: SetNull)
   createdBy      User?           @relation("CreatedKnowledgeItems", fields: [createdById], references: [id], onDelete: SetNull)
   approvedBy     User?           @relation("ApprovedKnowledgeItems", fields: [approvedById], references: [id], onDelete: SetNull)
+  suggestions    DraftSuggestion[]
 
   @@index([workspaceId, status])
   @@index([workspaceId, type])
@@ -186,4 +209,45 @@ model AuditEvent {
 
   @@index([workspaceId, createdAt])
   @@index([actorId])
+}
+
+model Draft {
+  id              String            @id @default(cuid())
+  workspaceId     String
+  creatorId       String
+  title           String
+  content         String            @db.Text
+  status          DraftStatus       @default(DRAFT)
+  complianceScore Int?
+  reviewedAt      DateTime?
+  reviewerId      String?
+  reviewNote      String?           @db.Text
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  workspace       Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator         User              @relation("CreatedDrafts", fields: [creatorId], references: [id], onDelete: Cascade)
+  reviewer        User?             @relation("ReviewedDrafts", fields: [reviewerId], references: [id], onDelete: SetNull)
+  suggestions     DraftSuggestion[]
+
+  @@index([workspaceId])
+  @@index([creatorId])
+  @@index([workspaceId, status])
+}
+
+model DraftSuggestion {
+  id            String             @id @default(cuid())
+  draftId       String
+  ruleId        String?
+  category      String
+  severity      SuggestionSeverity @default(WARNING)
+  originalText  String             @db.Text
+  suggestedText String?            @db.Text
+  explanation   String             @db.Text
+  status        SuggestionStatus   @default(PENDING)
+  createdAt     DateTime           @default(now())
+  draft         Draft              @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  rule          KnowledgeItem?     @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+
+  @@index([draftId])
+  @@index([ruleId])
 }

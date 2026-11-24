@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from app.services.extractor import ExtractionError, extract_document_text
 from app.services.knowledge import extract_brand_knowledge
+from app.services.review import review_draft_content
 
 load_dotenv()
 
@@ -125,6 +126,40 @@ def extract_knowledge(req: ExtractKnowledgeRequest) -> JSONResponse:
                 "error": {
                     "code": "KNOWLEDGE_EXTRACTION_FAILURE",
                     "message": f"Failed to extract knowledge: {str(e)}",
+                },
+            },
+        )
+
+
+class CheckDraftRequest(BaseModel):
+    text: str
+    rules: list[dict[str, Any]] = []
+
+
+@app.post("/ai/check-draft", dependencies=[Depends(verify_internal_key)])
+def check_draft(req: CheckDraftRequest) -> JSONResponse:
+    """Audits draft text against brand rules, identifying violations and suggested corrections."""
+    try:
+        result = review_draft_content(
+            text=req.text,
+            rules=req.rules,
+            client=openai_client,
+        )
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": "success",
+                "data": result.model_dump(),
+            },
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": "error",
+                "error": {
+                    "code": "DRAFT_REVIEW_FAILURE",
+                    "message": f"Failed to check draft: {str(e)}",
                 },
             },
         )

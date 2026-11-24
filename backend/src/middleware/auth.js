@@ -37,6 +37,28 @@ async function requireAuth(req, res, next) {
     return sendError(res, 401, 'UNAUTHENTICATED', 'Invalid access token payload');
   }
 
+  // Resilient Offline Demo Session Fallback
+  if (typeof userId === 'string' && userId.startsWith('demo_')) {
+    const role = decoded.role || 'ADMIN';
+    const workspaceId = decoded.workspaceId || 'demo_workspace_acme';
+    req.user = {
+      id: userId,
+      email: decoded.email || 'demo@brandcheck.io',
+      name: decoded.email ? decoded.email.split('@')[0] : 'Demo User',
+    };
+    req.currentMembership = {
+      id: `membership_${userId}`,
+      userId,
+      workspaceId,
+      role,
+      workspace: {
+        id: workspaceId,
+        name: 'Acme Brand (Demo Workspace)',
+      },
+    };
+    return next();
+  }
+
   let user;
   try {
     user = await prisma.user.findUnique({

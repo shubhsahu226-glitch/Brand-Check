@@ -1,5 +1,9 @@
 const express = require('express');
 const {
+  getCurrentWorkspace,
+  getWorkspaceAnalytics,
+} = require('../controllers/workspaceController');
+const {
   createInvitation,
   inspectInvitation,
   acceptInvitation,
@@ -8,30 +12,13 @@ const {
   getMembers,
   updateMemberRole,
 } = require('../controllers/memberController');
-const { requireAuth, requireRole, scoped } = require('../middleware/auth');
-const prisma = require('../lib/prisma');
+const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Current workspace info
-router.get('/current', requireAuth, async (req, res, next) => {
-  try {
-    const { workspaceId, role } = scoped(req);
-    const workspace = await prisma.workspace.findUnique({
-      where: { id: workspaceId },
-    });
-    const membersCount = await prisma.membership.count({
-      where: { workspaceId },
-    });
-    return res.status(200).json({
-      workspace,
-      role,
-      membersCount,
-    });
-  } catch (error) {
-    return next(error);
-  }
-});
+// Current workspace info & analytics
+router.get('/current', requireAuth, getCurrentWorkspace);
+router.get('/analytics', requireAuth, getWorkspaceAnalytics);
 
 // Member management
 router.get('/members', requireAuth, requireRole('ADMIN'), getMembers);

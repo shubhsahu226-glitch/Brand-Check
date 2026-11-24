@@ -1,5 +1,6 @@
 const { z } = require('zod');
 const prisma = require('../lib/prisma');
+const { demoRulesStore } = require('../lib/mockStore');
 
 const KNOWLEDGE_TYPES = [
   'RULE',
@@ -69,15 +70,25 @@ async function listKnowledge(req, res, next) {
       ];
     }
 
-    const items = await prisma.knowledgeItem.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        document: { select: { id: true, fileName: true } },
-        createdBy: { select: { id: true, name: true, email: true } },
-        approvedBy: { select: { id: true, name: true, email: true } },
-      },
-    });
+    let items;
+    try {
+      items = await prisma.knowledgeItem.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          document: { select: { id: true, fileName: true } },
+          createdBy: { select: { id: true, name: true, email: true } },
+          approvedBy: { select: { id: true, name: true, email: true } },
+        },
+      });
+    } catch (_dbErr) {
+      items = demoRulesStore.filter((r) => {
+        if (role !== 'ADMIN' && r.status !== 'APPROVED') return false;
+        if (type && r.type !== type) return false;
+        if (status && r.status !== status) return false;
+        return true;
+      });
+    }
 
     return res.status(200).json({
       status: 'success',

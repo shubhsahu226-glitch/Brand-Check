@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   UserPlus,
   CheckSquare,
+  TrendingUp,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -25,6 +26,9 @@ import ReviewerDashboard from './pages/ReviewerDashboard';
 import InviteMemberPage from './pages/InviteMemberPage';
 import AcceptInvitePage from './pages/AcceptInvitePage';
 import KnowledgeBasePage from './pages/KnowledgeBasePage';
+import DraftsListPage from './pages/DraftsListPage';
+import DraftEditorPage from './pages/DraftEditorPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 const cn = (...inputs) => twMerge(clsx(inputs));
 
@@ -109,17 +113,23 @@ function Sidebar() {
 
   const adminLinks = [
     { to: '/dashboard/admin', label: 'Admin Dashboard', icon: LayoutDashboard },
+    { to: '/drafts', label: 'Drafts & Studio', icon: FileText },
+    { to: '/analytics', label: 'Insights & Analytics', icon: TrendingUp },
     { to: '/knowledge-base', label: 'Knowledge Base', icon: BookOpen },
     { to: '/invite', label: 'Invite Member', icon: UserPlus },
   ];
 
   const creatorLinks = [
-    { to: '/dashboard/creator', label: 'Creator Dashboard', icon: FileText },
+    { to: '/dashboard/creator', label: 'Creator Dashboard', icon: LayoutDashboard },
+    { to: '/drafts', label: 'My Drafts', icon: FileText },
+    { to: '/analytics', label: 'Insights & Analytics', icon: TrendingUp },
     { to: '/knowledge-base', label: 'Brand Guidelines', icon: BookOpen },
   ];
 
   const reviewerLinks = [
     { to: '/dashboard/reviewer', label: 'Reviewer Dashboard', icon: CheckSquare },
+    { to: '/drafts', label: 'Review Queue', icon: FileText },
+    { to: '/analytics', label: 'Insights & Analytics', icon: TrendingUp },
     { to: '/knowledge-base', label: 'Brand Guidelines', icon: BookOpen },
   ];
 
@@ -236,6 +246,10 @@ export default function App() {
                   }
                 />
                 <Route path="/knowledge-base" element={<KnowledgeBasePage />} />
+                <Route path="/drafts" element={<DraftsListPage />} />
+                <Route path="/drafts/new" element={<DraftEditorPage />} />
+                <Route path="/drafts/:id" element={<DraftEditorPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
               </Route>
 
               {/* Catch-all */}

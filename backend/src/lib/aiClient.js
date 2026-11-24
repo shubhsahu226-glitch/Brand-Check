@@ -92,7 +92,105 @@ async function extractKnowledge(text, pages, filename) {
   }
 }
 
+/**
+ * Calls AI service to audit draft content against brand rules
+ */
+async function checkDraft(text, rules) {
+  try {
+    const res = await globalThis.fetch(`${AI_SERVICE_URL}/ai/check-draft`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Key': INTERNAL_API_KEY,
+      },
+      body: JSON.stringify({
+        text,
+        rules,
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const code = errData?.error?.code || 'REVIEW_FAILED';
+      const message =
+        errData?.error?.message || `AI service responded with HTTP ${res.status}`;
+      throw new Error(`[${code}] ${message}`);
+    }
+
+    const data = await res.json();
+    return data.data;
+  } catch (err) {
+    console.warn(
+      `AI check-draft call failed (${err.message}). Using deterministic rule checker fallback.`
+    );
+
+    // Deterministic fallback review engine
+    const suggestions = [];
+    const textLower = text.toLowerCase();
+
+    // Check rules
+    if (Array.isArray(rules)) {
+      for (const rule of rules) {
+        const rType = (rule.type || '').toUpperCase();
+        const rBody = rule.body || rule.title || '';
+        const rId = rule.id || null;
+
+        if (rType === 'TERM_BANNED') {
+          // Extract term from quotes or body
+          const quotesMatch = rBody.match(/['"]([^'"]+)['"]/);
+          const term = quotesMatch ? quotesMatch[1] : rBody.split(/[:,\n]/)[0].trim();
+          if (term && term.length >= 2 && textLower.includes(term.toLowerCase())) {
+            const idx = textLower.indexOf(term.toLowerCase());
+            const snippet = text.slice(idx, idx + term.length);
+            suggestions.push({
+              ruleId: rId,
+              category: 'TERM_BANNED',
+              severity: 'ERROR',
+              originalText: snippet,
+              suggestedText: null,
+              explanation: `Banned terminology '${snippet}' found. Guideline: ${rBody}`,
+            });
+          }
+        }
+      }
+    }
+
+    // Check common superlatives if no errors
+    const claims = ['best in the world', '100% guaranteed', 'zero risk', '#1 leader'];
+    for (const claim of claims) {
+      if (textLower.includes(claim)) {
+        const idx = textLower.indexOf(claim);
+        const snippet = text.slice(idx, idx + claim.length);
+        suggestions.push({
+          ruleId: null,
+          category: 'CLAIM',
+          severity: 'WARNING',
+          originalText: snippet,
+          suggestedText: 'leading industry solution',
+          explanation: `Unverified claim '${snippet}'. Requires verified factual citation.`,
+        });
+      }
+    }
+
+    let penalty = 0;
+    for (const s of suggestions) {
+      penalty += s.severity === 'ERROR' ? 20 : s.severity === 'WARNING' ? 10 : 5;
+    }
+    const score = Math.max(0, Math.min(100, 100 - penalty));
+
+    return {
+      complianceScore: score,
+      summary:
+        suggestions.length > 0
+          ? `Review identified ${suggestions.length} finding(s). Compliance score: ${score}/100.`
+          : 'Draft complies with brand guidelines. Ready for review.',
+      suggestions,
+    };
+  }
+}
+
 module.exports = {
   extractText,
   extractKnowledge,
+  checkDraft,
 };

@@ -54,27 +54,37 @@ export default function ReviewerDashboard() {
         </div>
       </div>
 
-      {/* "Review Queue" Placeholder Section */}
+      {/* "Review Queue" Active Section */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckSquare size={20} className="text-amber-600" />
-            <h2 className="text-lg font-semibold text-slate-900">Review Queue</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Review Queue & Decisions</h2>
           </div>
-          <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
-            Phase 5 feature
-          </span>
+          <NavLink
+            to="/drafts"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-amber-700"
+          >
+            <span>Open Review Queue</span>
+          </NavLink>
         </div>
 
-        <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-10 text-center">
+        <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-amber-600 shadow-sm">
-            <Clock size={24} />
+            <ShieldCheck size={24} />
           </div>
-          <h3 className="mt-4 font-semibold text-slate-800">Your review queue is clear</h3>
+          <h3 className="mt-4 font-semibold text-slate-800">Draft Review Queue Live</h3>
           <p className="mt-1.5 max-w-md text-xs leading-5 text-slate-500">
-            Submitted drafts, inline diff views, brand violation flags, and approval/rejection
-            actions will be available in Phase 5.
+            Audit submitted creator drafts, inspect explainable brand findings, review compliance scores,
+            and make formal approval or changes-requested decisions.
           </p>
+          <NavLink
+            to="/drafts"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
+          >
+            <CheckSquare size={14} />
+            <span>Go to Drafts & Review Studio</span>
+          </NavLink>
         </div>
       </div>
 

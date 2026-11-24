@@ -17,6 +17,7 @@ const invitationRoutes = require('./routes/invitationRoutes');
 const memberRoutes = require('./routes/memberRoutes');
 const brandDocumentRoutes = require('./routes/brandDocumentRoutes');
 const knowledgeRoutes = require('./routes/knowledgeRoutes');
+const draftRoutes = require('./routes/draftRoutes');
 
 const app = express();
 
@@ -119,6 +120,7 @@ app.use('/api/members', memberRoutes);
 app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/brand-documents', brandDocumentRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
+app.use('/api/drafts', draftRoutes);
 
 // Central 404 handler
 app.use(notFoundHandler);

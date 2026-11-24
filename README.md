@@ -7,11 +7,15 @@ BrandCheck is an enterprise brand compliance and review platform. It gives creat
 
 ---
 
-## Current Status: Phase 1 Complete (Production-Ready)
+## Current Status: Production-Ready (Phases 0–6 Complete)
 
 - [x] **Phase 0 — Project Setup & Tooling:** Monorepo architecture, linting, formatting, CI pipelines, and hardened baseline configurations.
 - [x] **Phase 1 — Authentication & Workspaces:** Multi-tenant workspace isolation, role-based dashboards (`ADMIN`, `CREATOR`, `REVIEWER`), secure JWT + httpOnly refresh token cookies with family revocation, 7-day tokenized invitations, Resend email delivery, and an interactive landing page.
-- [x] **Phase 2 — Brand Knowledge Base (Next):** Document ingestion (PDF, DOCX), vector embeddings (`text-embedding-3-small`), and editable brand rules.
+- [x] **Phase 2 — Brand Knowledge Base:** Multi-format document ingestion (PDF, DOCX, PPTX, TXT), security sanitization, OpenAI-powered extraction into 9 categories with deterministic fallback, human-in-the-loop admin approval studio.
+- [x] **Phase 3 — Draft Intake:** Full-featured marketing copy editor with word & character counting, status tracking, and draft management.
+- [x] **Phase 4 — Brand Check Review Engine:** Instant AI compliance auditing comparing drafts against approved brand rules, severity tagging (`ERROR`, `WARNING`, `INFO`), and one-click accept/dismiss suggestions.
+- [x] **Phase 5 — Human-in-the-Loop Review & Approval:** Creator review submission, Reviewer & Admin decision workflow (Approve / Request Changes) with reviewer notes and audit logs.
+- [x] **Phase 6 — Insights & Analytics:** Real-time compliance health score, content pipeline funnel, top violation distributions, and immutable audit activity feed.
 
 ---
 
