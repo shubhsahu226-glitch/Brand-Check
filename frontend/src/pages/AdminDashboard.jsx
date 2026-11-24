@@ -283,22 +283,29 @@ export default function AdminDashboard() {
           Upcoming Features
         </h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
-              <BookOpen size={20} />
+          <NavLink
+            to="/knowledge-base"
+            className="group rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/50 to-white p-6 shadow-sm transition hover:border-indigo-400 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm">
+                <BookOpen size={20} />
+              </div>
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                Live & Ready
+              </span>
             </div>
-            <span className="rounded bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
-              Phase 2: Brand Knowledge Base
+            <span className="rounded bg-indigo-100/70 px-2 py-0.5 text-[11px] font-semibold text-indigo-800">
+              Brand Knowledge Base
             </span>
-            <h3 className="mt-2.5 font-semibold text-slate-900">
-              Brand Documents & Guidelines
+            <h3 className="mt-2.5 font-semibold text-slate-900 group-hover:text-indigo-600 transition">
+              Brand Documents & Guidelines &rarr;
             </h3>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+            <p className="mt-1 text-xs leading-5 text-slate-600">
               Upload PDF and Word style guides, approved product claims, and voice
-              guidelines. AI will extract structured brand rules for your
-              workspace.
+              guidelines. Review, edit, and approve AI-extracted brand rules for your workspace.
             </p>
-          </div>
+          </NavLink>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-purple-50 text-purple-600">

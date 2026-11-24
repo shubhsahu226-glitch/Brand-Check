@@ -14,25 +14,62 @@ enum Role {
   REVIEWER
 }
 
+enum DocumentStatus {
+  UPLOADED
+  EXTRACTING
+  EXTRACTED
+  FAILED
+}
+
+enum KnowledgeType {
+  RULE
+  TONE
+  TERM_APPROVED
+  TERM_BANNED
+  FACT
+  CLAIM
+  VISUAL
+  ACCESSIBILITY
+  DISCLOSURE
+}
+
+enum KnowledgeStatus {
+  DRAFT
+  APPROVED
+  DISABLED
+}
+
+enum KnowledgeSource {
+  EXTRACTED
+  MANUAL
+}
+
 model User {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  name          String
-  passwordHash  String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  memberships   Membership[]
-  refreshTokens RefreshToken[]
+  id                    String          @id @default(cuid())
+  email                 String          @unique
+  name                  String
+  passwordHash          String
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  memberships           Membership[]
+  refreshTokens         RefreshToken[]
+  brandDocuments        BrandDocument[]
+  createdKnowledgeItems KnowledgeItem[] @relation("CreatedKnowledgeItems")
+  approvedKnowledgeItems KnowledgeItem[] @relation("ApprovedKnowledgeItems")
+  auditEvents           AuditEvent[]
 }
 
 model Workspace {
-  id          String        @id @default(cuid())
-  name        String
-  createdById String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  members     Membership[]
-  invitations Invitation[]
+  id             String          @id @default(cuid())
+  name           String
+  createdById    String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  members        Membership[]
+  invitations    Invitation[]
+  brandDocuments BrandDocument[]
+  knowledgeItems KnowledgeItem[]
+  auditEvents    AuditEvent[]
 
   @@index([createdById])
 }
@@ -79,4 +116,74 @@ model RefreshToken {
 
   @@index([userId])
   @@index([tokenHash])
+}
+
+model BrandDocument {
+  id            String          @id @default(cuid())
+  workspaceId   String
+  uploadedById  String
+  fileName      String
+  mimeType      String
+  sizeBytes     Int
+  storagePath   String
+  status        DocumentStatus  @default(UPLOADED)
+  errorCode     String?
+  errorMessage  String?
+  extractedText String?
+  pageCount     Int?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  uploadedBy    User            @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  knowledgeItems KnowledgeItem[]
+
+  @@index([workspaceId])
+  @@index([uploadedById])
+  @@index([workspaceId, status])
+}
+
+model KnowledgeItem {
+  id             String          @id @default(cuid())
+  workspaceId    String
+  documentId     String?
+  type           KnowledgeType
+  title          String
+  body           String
+  status         KnowledgeStatus @default(DRAFT)
+  source         KnowledgeSource @default(EXTRACTED)
+  sourceQuote    String?
+  sourcePage     Int?
+  sourceVerified Boolean         @default(false)
+  confidence     Float?
+  expiresAt      DateTime?
+  evidenceUrl    String?
+  createdById    String?
+  approvedById   String?
+  approvedAt     DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  document       BrandDocument?  @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  createdBy      User?           @relation("CreatedKnowledgeItems", fields: [createdById], references: [id], onDelete: SetNull)
+  approvedBy     User?           @relation("ApprovedKnowledgeItems", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, type])
+  @@index([documentId])
+}
+
+model AuditEvent {
+  id          String    @id @default(cuid())
+  workspaceId String
+  actorId     String
+  entityType  String
+  entityId    String
+  action      String
+  meta        Json?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actor       User      @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@index([actorId])
 }

@@ -24,6 +24,7 @@ import CreatorDashboard from './pages/CreatorDashboard';
 import ReviewerDashboard from './pages/ReviewerDashboard';
 import InviteMemberPage from './pages/InviteMemberPage';
 import AcceptInvitePage from './pages/AcceptInvitePage';
+import KnowledgeBasePage from './pages/KnowledgeBasePage';
 
 const cn = (...inputs) => twMerge(clsx(inputs));
 
@@ -108,15 +109,18 @@ function Sidebar() {
 
   const adminLinks = [
     { to: '/dashboard/admin', label: 'Admin Dashboard', icon: LayoutDashboard },
+    { to: '/knowledge-base', label: 'Knowledge Base', icon: BookOpen },
     { to: '/invite', label: 'Invite Member', icon: UserPlus },
   ];
 
   const creatorLinks = [
     { to: '/dashboard/creator', label: 'Creator Dashboard', icon: FileText },
+    { to: '/knowledge-base', label: 'Brand Guidelines', icon: BookOpen },
   ];
 
   const reviewerLinks = [
     { to: '/dashboard/reviewer', label: 'Reviewer Dashboard', icon: CheckSquare },
+    { to: '/knowledge-base', label: 'Brand Guidelines', icon: BookOpen },
   ];
 
   let authLinks = [{ to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }];
@@ -231,6 +235,7 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/knowledge-base" element={<KnowledgeBasePage />} />
               </Route>
 
               {/* Catch-all */}

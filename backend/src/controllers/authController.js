@@ -11,10 +11,12 @@ const { sendError } = require('../middleware/auth');
 const REFRESH_COOKIE_NAME = 'refreshToken';
 const REFRESH_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
+const cookieSameSite = process.env.COOKIE_SAME_SITE || 'lax';
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
+  sameSite: cookieSameSite,
   path: '/api/auth',
   maxAge: REFRESH_EXPIRY_MS,
 };
@@ -22,7 +24,7 @@ const COOKIE_OPTIONS = {
 const CLEAR_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
+  sameSite: cookieSameSite,
   path: '/api/auth',
 };
 
@@ -332,10 +334,131 @@ async function me(req, res) {
   });
 }
 
+const DEMO_CONFIG = {
+  ADMIN: {
+    email: 'admin.demo@brandcheck.io',
+    name: 'Demo Admin',
+  },
+  CREATOR: {
+    email: 'creator.demo@brandcheck.io',
+    name: 'Demo Creator',
+  },
+  REVIEWER: {
+    email: 'reviewer.demo@brandcheck.io',
+    name: 'Demo Reviewer',
+  },
+};
+
+const DEMO_WORKSPACE_NAME = 'Acme Brand (Demo Workspace)';
+
+async function demoLogin(req, res, next) {
+  try {
+    const { role } = req.body || {};
+    if (!role || !DEMO_CONFIG[role]) {
+      return sendError(
+        res,
+        400,
+        'VALIDATION_ERROR',
+        'Invalid role for demo login. Allowed roles: ADMIN, CREATOR, REVIEWER'
+      );
+    }
+
+    const { email, name } = DEMO_CONFIG[role];
+
+    // Find or create the shared demo workspace
+    let workspace = await prisma.workspace.findFirst({
+      where: { name: DEMO_WORKSPACE_NAME },
+    });
+
+    if (!workspace) {
+      workspace = await prisma.workspace.create({
+        data: {
+          name: DEMO_WORKSPACE_NAME,
+          createdById: 'demo-system',
+        },
+      });
+    }
+
+    // Find or create the demo user
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      const dummyPassword = await bcrypt.hash('DemoPassword123!', 10);
+      user = await prisma.user.create({
+        data: {
+          email,
+          name,
+          passwordHash: dummyPassword,
+        },
+      });
+    }
+
+    // Upsert membership for this user in the demo workspace
+    const membership = await prisma.membership.upsert({
+      where: {
+        userId_workspaceId: {
+          userId: user.id,
+          workspaceId: workspace.id,
+        },
+      },
+      update: {
+        role,
+      },
+      create: {
+        userId: user.id,
+        workspaceId: workspace.id,
+        role,
+      },
+    });
+
+    // Generate tokens
+    const accessToken = generateAccessToken({
+      userId: user.id,
+      email: user.email,
+      role: membership.role,
+      workspaceId: workspace.id,
+    });
+
+    const rawRefreshToken = generateRandomToken();
+    const tokenHash = hashToken(rawRefreshToken);
+    const expiresAt = new Date(Date.now() + REFRESH_EXPIRY_MS);
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      },
+    });
+
+    res.cookie(REFRESH_COOKIE_NAME, rawRefreshToken, COOKIE_OPTIONS);
+
+    return res.status(200).json({
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+      workspace: {
+        id: workspace.id,
+        name: workspace.name,
+        role: membership.role,
+      },
+      role: membership.role,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   signup,
   login,
   refresh,
   logout,
   me,
+  demoLogin,
 };

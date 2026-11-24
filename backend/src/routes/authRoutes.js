@@ -6,6 +6,7 @@ const {
   refresh,
   logout,
   me,
+  demoLogin,
 } = require('../controllers/authController');
 const { requireAuth } = require('../middleware/auth');
 
@@ -30,6 +31,7 @@ const authLimiter = rateLimit({
 
 router.post('/signup', signup);
 router.post('/login', authLimiter, login);
+router.post('/demo-login', demoLogin);
 router.post('/refresh', refresh);
 router.post('/logout', logout);
 router.get('/me', requireAuth, me);

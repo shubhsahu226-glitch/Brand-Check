@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   ShieldCheck,
@@ -14,6 +14,7 @@ import {
   Clock,
   Layers,
   Award,
+  Loader2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -123,10 +124,25 @@ const ROLES_INFO = {
 };
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, demoLogin } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('email');
   const [suggestionAccepted, setSuggestionAccepted] = useState(false);
   const [activeRole, setActiveRole] = useState('CREATOR');
+  const [loadingRole, setLoadingRole] = useState(null);
+
+  const handleDemoLogin = async (role) => {
+    if (loadingRole) return;
+    setLoadingRole(role);
+    try {
+      const res = await demoLogin(role);
+      if (res.success) {
+        navigate('/dashboard');
+      }
+    } finally {
+      setLoadingRole(null);
+    }
+  };
 
   const currentSample = DEMO_SAMPLES[activeTab];
   const roleData = ROLES_INFO[activeRole];
@@ -199,6 +215,98 @@ export default function HomePage() {
             </>
           )}
         </div>
+
+        {/* 1-Click Hackathon Evaluator Access */}
+        {!user && (
+          <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-indigo-100 bg-white/95 p-5 shadow-sm shadow-indigo-100/50 backdrop-blur-xs text-left">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-indigo-600" />
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-950">
+                  1-Click Hackathon Evaluator Access
+                </span>
+              </div>
+              <span className="rounded-full border border-emerald-200/60 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+                Live Interactive Demo
+              </span>
+            </div>
+
+            <p className="mt-2.5 text-xs text-slate-600">
+              Judges & reviewers: click any role below to instantly log in and evaluate the application without registration:
+            </p>
+
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {/* Admin Button */}
+              <button
+                type="button"
+                disabled={loadingRole !== null}
+                onClick={() => handleDemoLogin('ADMIN')}
+                className="group relative flex items-center justify-between rounded-xl border border-purple-200/80 bg-purple-50/50 p-3.5 text-left transition hover:border-purple-300 hover:bg-purple-50 hover:shadow-xs active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-purple-100 text-purple-700">
+                    {loadingRole === 'ADMIN' ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <ShieldCheck size={16} />
+                    )}
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-purple-950">Admin</span>
+                    <span className="block text-[11px] text-purple-700/80">Workspace & rules</span>
+                  </div>
+                </div>
+                <ArrowRight size={14} className="text-purple-400 transition group-hover:translate-x-0.5 group-hover:text-purple-700" />
+              </button>
+
+              {/* Creator Button */}
+              <button
+                type="button"
+                disabled={loadingRole !== null}
+                onClick={() => handleDemoLogin('CREATOR')}
+                className="group relative flex items-center justify-between rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-3.5 text-left transition hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-xs active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 text-emerald-700">
+                    {loadingRole === 'CREATOR' ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <FileText size={16} />
+                    )}
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-emerald-950">Creator</span>
+                    <span className="block text-[11px] text-emerald-700/80">Draft editor & tone</span>
+                  </div>
+                </div>
+                <ArrowRight size={14} className="text-emerald-400 transition group-hover:translate-x-0.5 group-hover:text-emerald-700" />
+              </button>
+
+              {/* Reviewer Button */}
+              <button
+                type="button"
+                disabled={loadingRole !== null}
+                onClick={() => handleDemoLogin('REVIEWER')}
+                className="group relative flex items-center justify-between rounded-xl border border-amber-200/80 bg-amber-50/50 p-3.5 text-left transition hover:border-amber-300 hover:bg-amber-50 hover:shadow-xs active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-amber-100 text-amber-700">
+                    {loadingRole === 'REVIEWER' ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <CheckSquare size={16} />
+                    )}
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-amber-950">Reviewer</span>
+                    <span className="block text-[11px] text-amber-700/80">Approval queue</span>
+                  </div>
+                </div>
+                <ArrowRight size={14} className="text-amber-400 transition group-hover:translate-x-0.5 group-hover:text-amber-700" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Feature Highlights Bar */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-slate-500">

@@ -110,6 +110,34 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const demoLogin = async (role) => {
+    try {
+      const response = await api.post('/auth/demo-login', { role });
+      const data = response.data?.data || response.data;
+      const { user: demoUser, workspace, accessToken } = data;
+
+      setAuthToken(accessToken);
+      setUser(demoUser);
+      const ws = {
+        id: workspace.id,
+        name: workspace.name,
+        role: workspace.role || role,
+      };
+      setWorkspaces([ws]);
+      setCurrentWorkspace(ws);
+
+      toast.success(`Demo Access: Signed in as ${demoUser.name} (${role})!`);
+      return { success: true, user: demoUser, workspace: ws };
+    } catch (error) {
+      const message =
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        'Demo login failed. Please ensure the backend server is running.';
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
+
   const setSession = ({ user: newUser, workspace: newWorkspace, accessToken }) => {
     setAuthToken(accessToken);
     setUser(newUser);
@@ -174,6 +202,7 @@ export function AuthProvider({ children }) {
     loading,
     signup,
     login,
+    demoLogin,
     setSession,
     logout,
     refreshUser,

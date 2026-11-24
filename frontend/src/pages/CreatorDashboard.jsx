@@ -1,4 +1,5 @@
-import { FileText, PlusCircle, Sparkles, Clock, CheckCircle } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { FileText, PlusCircle, Sparkles, Clock, CheckCircle, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function CreatorDashboard() {
@@ -26,6 +27,14 @@ export default function CreatorDashboard() {
               Draft, check, and refine content against verified brand guidance.
             </p>
           </div>
+
+          <NavLink
+            to="/knowledge-base"
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+          >
+            <BookOpen size={16} />
+            <span>Browse Brand Guidelines</span>
+          </NavLink>
         </div>
 
         {/* Quick Stats */}

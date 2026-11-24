@@ -197,22 +197,29 @@ Standard Error Codes:
 ## Testing & Quality Assurance Verification
 
 1. **Backend Test Suite (Vitest + Supertest):**
-   - 5 test suites, 56/56 passing tests.
+   - 8 test suites, 74/74 passing tests.
+   - Complete coverage for Auth, Hardening, Workspaces, Invitations, Demo Login, Brand Documents, and Knowledge Base CRUD & Approval Pipeline.
    - Deterministic test setup: runs against dedicated `TEST_DATABASE_URL` targeting `schema=test`. Fails safe if `TEST_DATABASE_URL` is missing or matches production.
 2. **AI Service Test Suite (Pytest + HTTPX):**
-   - 6/6 passing tests in `ai-service/tests/test_health.py`.
+   - 11/11 passing tests across `test_health.py` and `test_extraction.py`.
+   - Comprehensive coverage for PDF, DOCX, PPTX extraction, security controls, and structured brand knowledge extraction.
    - Linted and formatted with `ruff` (0 errors, 0 warnings).
 3. **Frontend Test & Build (Vite + ESLint):**
    - ESLint: 0 errors, 0 warnings.
-   - Vite Production Build: Clean compilation in ~3.3 seconds.
+   - Vite Production Build: Clean compilation in ~20 seconds.
 
 ---
 
 ## Current Status & Next Steps
 
-* **Current Status:** Phase 1 (Authentication and Workspaces) is **100% complete, hardened, tested, and verified**.
-* **Next Phase:** **Phase 2 — Brand Knowledge Base**:
-  - Document upload and ingestion (PDF, DOCX, TXT via Supabase Storage).
-  - Document parsing and chunking.
-  - OpenAI embeddings generation (`text-embedding-3-small`) and storage in Supabase PostgreSQL via `pgvector`.
-  - Brand guideline rules extraction and editable rules / approved facts UI.
+* **Current Status:** Phase 1 (Authentication and Workspaces) & Phase 2 (Brand Knowledge Base) are **100% complete, hardened, tested, and verified**.
+  - Document upload and ingestion (PDF, DOCX, PPTX, TXT via Supabase Storage & AI Service).
+  - Document parsing, security checks (size cap, zip bomb detection, encrypted PDF rejection, control character sanitization).
+  - OpenAI-powered structured knowledge extraction into 9 categories with deterministic heuristic fallback.
+  - Human-in-the-loop review studio: AI extracted items enter as `status: DRAFT`; zero items become `APPROVED` without explicit Admin approval.
+  - Bulk approval for up to 200 items in an atomic transaction.
+  - Role boundary: Non-admins (`CREATOR`, `REVIEWER`) strictly have read-only access to `APPROVED` items.
+  - Full-featured SaaS UI for Brand Knowledge Base with live search, category filtering, bulk approval, and document management.
+* **Next Phase:** **Phase 3 — Draft Intake**:
+  - Drag-and-drop upload UI & rich text editor integration.
+  - Draft storage, version tracking, Supabase Storage integration.
