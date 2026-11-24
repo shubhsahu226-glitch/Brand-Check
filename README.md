@@ -11,7 +11,7 @@ BrandCheck is an enterprise brand compliance and review platform. It gives creat
 
 - [x] **Phase 0 — Project Setup & Tooling:** Monorepo architecture, linting, formatting, CI pipelines, and hardened baseline configurations.
 - [x] **Phase 1 — Authentication & Workspaces:** Multi-tenant workspace isolation, role-based dashboards (`ADMIN`, `CREATOR`, `REVIEWER`), secure JWT + httpOnly refresh token cookies with family revocation, 7-day tokenized invitations, Resend email delivery, and an interactive landing page.
-- [ ] **Phase 2 — Brand Knowledge Base (Next):** Document ingestion (PDF, DOCX), vector embeddings (`text-embedding-3-small`), and editable brand rules.
+- [x] **Phase 2 — Brand Knowledge Base (Next):** Document ingestion (PDF, DOCX), vector embeddings (`text-embedding-3-small`), and editable brand rules.
 
 ---
 
