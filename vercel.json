@@ -31,9 +31,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": {
-        "service": "backend"
-      }
+      "destination": "https://brand-check-jh5l.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
