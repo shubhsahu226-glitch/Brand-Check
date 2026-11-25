@@ -97,37 +97,57 @@ export default function CreatorDashboard() {
         </div>
       </div>
 
-      {/* Placeholder Cards for Future Creator Features */}
+      {/* Creator Capabilities & Quick Actions */}
       <div className="space-y-4">
-        <h2 className="text-base font-semibold text-slate-800">Upcoming Creator Capabilities</h2>
+        <h2 className="text-base font-semibold text-slate-800">Creator Capabilities</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
-              <Sparkles size={20} />
+          <NavLink
+            to="/drafts/new"
+            className="group rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/50 to-white p-6 shadow-sm transition hover:border-indigo-400 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm">
+                <Sparkles size={20} />
+              </div>
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                Live & Ready
+              </span>
             </div>
-            <span className="rounded bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
-              Phase 4: Brand Check Engine
+            <span className="rounded bg-indigo-100/70 px-2 py-0.5 text-[11px] font-semibold text-indigo-800">
+              Brand Check Engine
             </span>
-            <h3 className="mt-2.5 font-semibold text-slate-900">Instant Brand Compliance Check</h3>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+            <h3 className="mt-2.5 font-semibold text-slate-900 group-hover:text-indigo-600 transition">
+              Instant Brand Compliance Check &rarr;
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-slate-600">
               Run automated checks against approved facts, tone guidelines, and forbidden terms
               with clear explanations.
             </p>
-          </div>
+          </NavLink>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600">
-              <CheckCircle size={20} />
+          <NavLink
+            to="/drafts"
+            className="group rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/50 to-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-600 text-white shadow-sm">
+                <CheckCircle size={20} />
+              </div>
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                Live & Ready
+              </span>
             </div>
-            <span className="rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-              Phase 5: Approval Workflow
+            <span className="rounded bg-emerald-100/70 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
+              Approval Workflow
             </span>
-            <h3 className="mt-2.5 font-semibold text-slate-900">Review Collaboration</h3>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+            <h3 className="mt-2.5 font-semibold text-slate-900 group-hover:text-emerald-600 transition">
+              Review Collaboration &rarr;
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-slate-600">
               Collaborate directly with assigned reviewers, address feedback comments, and resolve
               findings.
             </p>
-          </div>
+          </NavLink>
         </div>
       </div>
     </div>

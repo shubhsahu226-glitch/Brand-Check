@@ -63,3 +63,119 @@ input {
 .animate-float-subtle {
   animation: float-subtle 3.8s ease-in-out infinite 0.6s;
 }
+
+/* 3D Perspective & Spatial Depth */
+.perspective-600 {
+  perspective: 600px;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* 3D Floating Keyframes with Multi-Axis Rotation & Elevation */
+@keyframes float-3d-alpha {
+  0%, 100% {
+    transform: perspective(1000px) translateY(0px) rotateX(5deg) rotateY(-8deg) translateZ(0px);
+  }
+  50% {
+    transform: perspective(1000px) translateY(-18px) rotateX(-5deg) rotateY(8deg) translateZ(24px);
+  }
+}
+
+@keyframes float-3d-beta {
+  0%, 100% {
+    transform: perspective(1000px) translateY(0px) rotateX(-6deg) rotateY(10deg) translateZ(0px);
+  }
+  50% {
+    transform: perspective(1000px) translateY(16px) rotateX(6deg) rotateY(-8deg) translateZ(18px);
+  }
+}
+
+@keyframes float-3d-gamma {
+  0%, 100% {
+    transform: perspective(1000px) translateY(0px) rotateZ(0deg) translateZ(0px);
+  }
+  50% {
+    transform: perspective(1000px) translateY(-12px) rotateZ(3deg) translateZ(14px);
+  }
+}
+
+@keyframes spin-slow-3d {
+  0% {
+    transform: perspective(1000px) rotateX(15deg) rotateY(0deg) rotateZ(0deg);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(-10deg) rotateY(180deg) rotateZ(10deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(15deg) rotateY(360deg) rotateZ(0deg);
+  }
+}
+
+@keyframes pulse-mesh {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.04);
+  }
+}
+
+.animate-float-3d-alpha {
+  animation: float-3d-alpha 6s ease-in-out infinite;
+}
+
+.animate-float-3d-beta {
+  animation: float-3d-beta 7s ease-in-out infinite 1.2s;
+}
+
+.animate-float-3d-gamma {
+  animation: float-3d-gamma 5.2s ease-in-out infinite 0.5s;
+}
+
+.animate-spin-slow-3d {
+  animation: spin-slow-3d 20s linear infinite;
+}
+
+.animate-pulse-mesh {
+  animation: pulse-mesh 8s ease-in-out infinite;
+}
+
+/* 3D Background Grid & Specular Texture Patterns */
+.bg-grid-isometric {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
+}
+
+.bg-radial-fade {
+  mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+}
+
+.glass-card-3d {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 10px 30px -10px rgba(99, 102, 241, 0.12),
+    0 20px 40px -15px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}

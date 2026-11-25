@@ -72,7 +72,7 @@ export default function AnalyticsPage() {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
               <TrendingUp size={13} />
-              PHASE 6: INSIGHTS & ANALYTICS
+              Insights & Analytics
             </span>
             <span className="text-xs font-medium text-slate-500">
               Workspace: <strong className="text-slate-800">{currentWorkspace?.name}</strong>

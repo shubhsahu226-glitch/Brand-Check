@@ -155,20 +155,63 @@ export default function HomePage() {
 
   return (
     <div className="relative mx-auto max-w-6xl space-y-24 overflow-hidden py-4 sm:py-8">
-      {/* Background Decorative Gradients */}
-      <div
-        className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-indigo-200/50 via-purple-100/40 to-sky-100/30 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute top-[600px] -left-48 -z-10 h-[450px] w-[500px] rounded-full bg-gradient-to-br from-indigo-100/40 via-violet-100/30 to-transparent blur-2xl"
-        aria-hidden="true"
-      />
+      {/* 3D Background Perspective Grid & Ambient Lighting */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        {/* Angled 3D Perspective Grid */}
+        <div 
+          className="absolute -top-24 left-1/2 h-[750px] w-[1300px] -translate-x-1/2 bg-grid-isometric opacity-60 bg-radial-fade [transform:perspective(1000px)_rotateX(60deg)]"
+          aria-hidden="true"
+        />
+
+        {/* Ambient Glowing Orbs at Different 3D Depths */}
+        <div 
+          className="absolute -top-20 left-1/4 h-80 w-80 rounded-full bg-gradient-to-tr from-indigo-400/20 to-purple-400/25 blur-3xl animate-pulse-mesh"
+          aria-hidden="true"
+        />
+        <div 
+          className="absolute top-[450px] -right-32 h-96 w-96 rounded-full bg-gradient-to-br from-violet-300/20 via-sky-300/20 to-transparent blur-3xl animate-pulse-mesh"
+          style={{ animationDelay: '3.5s' }}
+          aria-hidden="true"
+        />
+
+        {/* Floating 3D Geometric Ring / Wireframe Shapes */}
+        <div 
+          className="absolute top-28 left-[4%] hidden h-24 w-24 rounded-3xl border-2 border-indigo-300/40 bg-gradient-to-br from-indigo-500/10 to-transparent backdrop-blur-xs [transform:perspective(800px)_rotateX(45deg)_rotateY(25deg)] animate-spin-slow-3d lg:block"
+          aria-hidden="true"
+        />
+        <div 
+          className="absolute top-48 right-[5%] hidden h-20 w-20 rounded-2xl border-2 border-purple-300/30 bg-gradient-to-tl from-purple-500/10 to-transparent backdrop-blur-xs [transform:perspective(800px)_rotateX(-35deg)_rotateY(-30deg)] animate-spin-slow-3d lg:block"
+          style={{ animationDuration: '24s', animationDirection: 'reverse' }}
+          aria-hidden="true"
+        />
+      </div>
 
       {/* Hero Section */}
-      <section className="text-center">
+      <section className="relative text-center">
+        {/* Left Floating 3D Badge (Desktop) */}
+        <div className="glass-card-3d animate-float-3d-alpha absolute top-6 left-0 hidden items-center gap-3 rounded-2xl p-3.5 shadow-xl transition duration-300 hover:scale-105 xl:flex">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-600/30">
+            <ShieldCheck size={20} />
+          </div>
+          <div className="text-left">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-indigo-600">ASCI Guard</span>
+            <span className="block text-xs font-semibold text-slate-800">100% Fact Grounded</span>
+          </div>
+        </div>
+
+        {/* Right Floating 3D Badge (Desktop) */}
+        <div className="glass-card-3d animate-float-3d-beta absolute top-8 right-0 hidden items-center gap-3 rounded-2xl p-3.5 shadow-xl transition duration-300 hover:scale-105 xl:flex">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-700 text-white shadow-md shadow-emerald-600/30">
+            <Sparkles size={20} />
+          </div>
+          <div className="text-left">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-emerald-600">Dual-Engine AI</span>
+            <span className="block text-xs font-semibold text-slate-800">Sub-2s Latency</span>
+          </div>
+        </div>
+
         {/* Pill Badge */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50/90 px-4 py-1.5 text-xs font-semibold text-indigo-700 shadow-xs backdrop-blur-xs transition hover:bg-indigo-100/80">
+        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-white/80 px-4 py-1.5 text-xs font-semibold text-indigo-700 shadow-sm backdrop-blur-md transition hover:bg-indigo-50/80">
           <Sparkles size={14} className="text-indigo-600" />
           <span>Polished Before Published — Human-Led Brand Governance</span>
         </div>
@@ -189,124 +232,120 @@ export default function HomePage() {
 
         {/* Action CTAs */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <NavLink
+            to="/signup"
+            className="inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-600/25 transition duration-150 hover:from-indigo-700 hover:to-indigo-800 hover:shadow-indigo-600/35 active:scale-[0.98]"
+          >
+            <span>Start Free Workspace</span>
+            <ArrowRight size={18} />
+          </NavLink>
           {user ? (
             <NavLink
               to="/dashboard"
-              className="inline-flex items-center gap-2.5 rounded-xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-indigo-600/20 transition hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white/90 px-6 py-3.5 text-base font-semibold text-slate-700 shadow-sm backdrop-blur-xs transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]"
             >
               <span>Go to Your Workspace</span>
-              <ArrowRight size={18} />
+              <ArrowRight size={16} />
             </NavLink>
           ) : (
-            <>
-              <NavLink
-                to="/signup"
-                className="inline-flex items-center gap-2.5 rounded-xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-indigo-600/20 transition hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 active:scale-[0.98]"
-              >
-                <span>Start Free Workspace</span>
-                <ArrowRight size={18} />
-              </NavLink>
-              <NavLink
-                to="/login"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-base font-semibold text-slate-700 shadow-xs transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]"
-              >
-                <span>Sign In to Account</span>
-              </NavLink>
-            </>
+            <NavLink
+              to="/login"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white/90 px-6 py-3.5 text-base font-semibold text-slate-700 shadow-sm backdrop-blur-xs transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]"
+            >
+              <span>Sign In to Account</span>
+            </NavLink>
           )}
         </div>
 
         {/* 1-Click Hackathon Evaluator Access */}
-        {!user && (
-          <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-indigo-100 bg-white/95 p-5 shadow-sm shadow-indigo-100/50 backdrop-blur-xs text-left">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-indigo-600" />
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-950">
-                  1-Click Hackathon Evaluator Access
-                </span>
-              </div>
-              <span className="rounded-full border border-emerald-200/60 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
-                Live Interactive Demo
+        <div className="glass-card-3d mx-auto mt-8 max-w-2xl rounded-3xl p-6 text-left shadow-xl transition duration-300 hover:shadow-2xl hover:shadow-indigo-500/10">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} className="text-indigo-600" />
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-950">
+                1-Click Hackathon Evaluator Access
               </span>
             </div>
-
-            <p className="mt-2.5 text-xs text-slate-600">
-              Judges & reviewers: click any role below to instantly log in and evaluate the application without registration:
-            </p>
-
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {/* Admin Button */}
-              <button
-                type="button"
-                disabled={loadingRole !== null}
-                onClick={() => handleDemoLogin('ADMIN')}
-                className="group relative flex items-center justify-between rounded-xl border border-purple-200/80 bg-purple-50/50 p-3.5 text-left transition hover:border-purple-300 hover:bg-purple-50 hover:shadow-xs active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-purple-100 text-purple-700">
-                    {loadingRole === 'ADMIN' ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <ShieldCheck size={16} />
-                    )}
-                  </div>
-                  <div>
-                    <span className="block text-xs font-bold text-purple-950">Admin</span>
-                    <span className="block text-[11px] text-purple-700/80">Workspace & rules</span>
-                  </div>
-                </div>
-                <ArrowRight size={14} className="text-purple-400 transition group-hover:translate-x-0.5 group-hover:text-purple-700" />
-              </button>
-
-              {/* Creator Button */}
-              <button
-                type="button"
-                disabled={loadingRole !== null}
-                onClick={() => handleDemoLogin('CREATOR')}
-                className="group relative flex items-center justify-between rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-3.5 text-left transition hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-xs active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 text-emerald-700">
-                    {loadingRole === 'CREATOR' ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <FileText size={16} />
-                    )}
-                  </div>
-                  <div>
-                    <span className="block text-xs font-bold text-emerald-950">Creator</span>
-                    <span className="block text-[11px] text-emerald-700/80">Draft editor & tone</span>
-                  </div>
-                </div>
-                <ArrowRight size={14} className="text-emerald-400 transition group-hover:translate-x-0.5 group-hover:text-emerald-700" />
-              </button>
-
-              {/* Reviewer Button */}
-              <button
-                type="button"
-                disabled={loadingRole !== null}
-                onClick={() => handleDemoLogin('REVIEWER')}
-                className="group relative flex items-center justify-between rounded-xl border border-amber-200/80 bg-amber-50/50 p-3.5 text-left transition hover:border-amber-300 hover:bg-amber-50 hover:shadow-xs active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-amber-100 text-amber-700">
-                    {loadingRole === 'REVIEWER' ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <CheckSquare size={16} />
-                    )}
-                  </div>
-                  <div>
-                    <span className="block text-xs font-bold text-amber-950">Reviewer</span>
-                    <span className="block text-[11px] text-amber-700/80">Approval queue</span>
-                  </div>
-                </div>
-                <ArrowRight size={14} className="text-amber-400 transition group-hover:translate-x-0.5 group-hover:text-amber-700" />
-              </button>
-            </div>
+            <span className="rounded-full border border-emerald-200/60 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+              Live Interactive Demo
+            </span>
           </div>
-        )}
+
+          <p className="mt-2.5 text-xs text-slate-600">
+            Judges & reviewers: click any role below to instantly log in and evaluate the application without registration:
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {/* Admin Button */}
+            <button
+              type="button"
+              disabled={loadingRole !== null}
+              onClick={() => handleDemoLogin('ADMIN')}
+              className="group relative flex items-center justify-between rounded-xl border border-purple-200 border-b-2 bg-white px-3.5 py-3 text-left shadow-xs transition duration-150 hover:-translate-y-0.5 hover:bg-purple-50 hover:border-purple-300 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="grid h-8 w-8 place-items-center rounded-lg bg-purple-100 text-purple-700">
+                  {loadingRole === 'ADMIN' ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <ShieldCheck size={16} />
+                  )}
+                </div>
+                <div>
+                  <span className="block text-xs font-bold text-purple-950">Admin</span>
+                  <span className="block text-[11px] text-purple-700/80">Workspace & rules</span>
+                </div>
+              </div>
+              <ArrowRight size={14} className="text-purple-400 transition group-hover:translate-x-0.5 group-hover:text-purple-700" />
+            </button>
+
+            {/* Creator Button */}
+            <button
+              type="button"
+              disabled={loadingRole !== null}
+              onClick={() => handleDemoLogin('CREATOR')}
+              className="group relative flex items-center justify-between rounded-xl border border-emerald-200 border-b-2 bg-white px-3.5 py-3 text-left shadow-xs transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-50 hover:border-emerald-300 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 text-emerald-700">
+                  {loadingRole === 'CREATOR' ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <FileText size={16} />
+                  )}
+                </div>
+                <div>
+                  <span className="block text-xs font-bold text-emerald-950">Creator</span>
+                  <span className="block text-[11px] text-emerald-700/80">Draft editor & tone</span>
+                </div>
+              </div>
+              <ArrowRight size={14} className="text-emerald-400 transition group-hover:translate-x-0.5 group-hover:text-emerald-700" />
+            </button>
+
+            {/* Reviewer Button */}
+            <button
+              type="button"
+              disabled={loadingRole !== null}
+              onClick={() => handleDemoLogin('REVIEWER')}
+              className="group relative flex items-center justify-between rounded-xl border border-amber-200 border-b-2 bg-white px-3.5 py-3 text-left shadow-xs transition duration-150 hover:-translate-y-0.5 hover:bg-amber-50 hover:border-amber-300 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="grid h-8 w-8 place-items-center rounded-lg bg-amber-100 text-amber-700">
+                  {loadingRole === 'REVIEWER' ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <CheckSquare size={16} />
+                  )}
+                </div>
+                <div>
+                  <span className="block text-xs font-bold text-amber-950">Reviewer</span>
+                  <span className="block text-[11px] text-amber-700/80">Approval queue</span>
+                </div>
+              </div>
+              <ArrowRight size={14} className="text-amber-400 transition group-hover:translate-x-0.5 group-hover:text-amber-700" />
+            </button>
+          </div>
+        </div>
 
         {/* Feature Highlights Bar */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-slate-500">
@@ -325,11 +364,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Interactive Hero Showcase with Floating Elements */}
+      {/* Interactive Hero Showcase with 3D Floating Elements */}
       <section className="relative mx-auto mt-8 max-w-5xl">
-        {/* Floating Element 1: Top Right - Tone Score */}
-        <div className="animate-float absolute -top-8 -right-4 z-20 hidden rounded-2xl border border-emerald-100 bg-white/95 p-3.5 shadow-xl shadow-emerald-500/10 backdrop-blur-md sm:flex sm:items-center sm:gap-3 md:-right-8">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-700 shadow-xs">
+        {/* Floating 3D Element 1: Top Right - Tone Score */}
+        <div className="glass-card-3d animate-float-3d-alpha absolute -top-8 -right-4 z-20 hidden rounded-2xl p-4 shadow-xl backdrop-blur-md transition duration-300 hover:scale-105 sm:flex sm:items-center sm:gap-3 md:-right-8">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/20">
             <CheckCircle2 size={20} />
           </div>
           <div className="text-left">
@@ -345,9 +384,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Floating Element 2: Bottom Left - Rule Verification */}
-        <div className="animate-float-delayed absolute -bottom-6 -left-4 z-20 hidden rounded-2xl border border-indigo-100 bg-white/95 p-3.5 shadow-xl shadow-indigo-500/10 backdrop-blur-md sm:flex sm:items-center sm:gap-3 md:-left-8">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-100 text-indigo-700 shadow-xs">
+        {/* Floating 3D Element 2: Bottom Left - Rule Verification */}
+        <div className="glass-card-3d animate-float-3d-beta absolute -bottom-6 -left-4 z-20 hidden rounded-2xl p-4 shadow-xl backdrop-blur-md transition duration-300 hover:scale-105 sm:flex sm:items-center sm:gap-3 md:-left-8">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white shadow-md shadow-indigo-500/20">
             <Sparkles size={20} />
           </div>
           <div className="text-left">
@@ -363,9 +402,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Floating Element 3: Bottom Right - Human In The Loop */}
-        <div className="animate-float-subtle absolute -bottom-7 right-6 z-20 hidden rounded-2xl border border-purple-100 bg-white/95 p-3.5 shadow-xl shadow-purple-500/10 backdrop-blur-md lg:flex lg:items-center lg:gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-100 text-purple-700 shadow-xs">
+        {/* Floating 3D Element 3: Bottom Right - Human In The Loop */}
+        <div className="glass-card-3d animate-float-3d-gamma absolute -bottom-7 right-6 z-20 hidden rounded-2xl p-4 shadow-xl backdrop-blur-md transition duration-300 hover:scale-105 lg:flex lg:items-center lg:gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-purple-500 to-purple-600 text-white shadow-md shadow-purple-500/20">
             <ShieldCheck size={20} />
           </div>
           <div className="text-left">
@@ -381,8 +420,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Main Interactive Studio Mockup Card */}
-        <div className="relative rounded-3xl border border-slate-200/90 bg-white p-6 shadow-2xl shadow-slate-300/40 sm:p-9">
+        {/* Main Interactive Studio Mockup Card with 3D Depth */}
+        <div className="glass-card-3d preserve-3d [transform:perspective(1200px)] hover:[transform:perspective(1200px)_rotateX(1deg)] relative rounded-3xl p-6 shadow-2xl transition duration-500 sm:p-9">
           {/* Top Mockup Header Bar */}
           <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
@@ -609,7 +648,7 @@ export default function HomePage() {
           ].map(({ step, title, icon: Icon, color, bgColor, body }) => (
             <div
               key={step}
-              className="group relative rounded-2xl border border-slate-200 bg-white p-7 shadow-xs transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-md"
+              className="glass-card-3d group relative rounded-2xl p-7 transition duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-indigo-500/10"
             >
               <div className="flex items-center justify-between">
                 <span className="font-mono text-xs font-bold tracking-widest text-indigo-600">
@@ -724,8 +763,17 @@ export default function HomePage() {
       </section>
 
       {/* Human-Led by Design Philosophy Callout */}
-      <section className="rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 p-8 text-white shadow-xl sm:p-12">
-        <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
+      <section className="relative overflow-hidden rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-8 text-white shadow-2xl sm:p-12">
+        <div 
+          className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-indigo-500/15 blur-3xl animate-pulse-mesh"
+          aria-hidden="true"
+        />
+        <div 
+          className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-purple-500/15 blur-3xl animate-pulse-mesh"
+          style={{ animationDelay: '4s' }}
+          aria-hidden="true"
+        />
+        <div className="relative z-10 grid gap-8 lg:grid-cols-12 lg:items-center">
           <div className="space-y-4 lg:col-span-8">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold text-indigo-200 backdrop-blur-xs">
               <Award size={14} />

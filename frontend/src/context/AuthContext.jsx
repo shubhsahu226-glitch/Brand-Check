@@ -13,6 +13,13 @@ export function AuthProvider({ children }) {
   // Initialize session by attempting token refresh on initial load
   useEffect(() => {
     async function initAuth() {
+      // If opening the public home page ('/' or ''), start with a clean visitor state
+      // without automatically logging into any dashboard or demo session.
+      if (window.location.pathname === '/' || window.location.pathname === '') {
+        setLoading(false);
+        return;
+      }
+
       try {
         const refreshRes = await api.post('/auth/refresh');
         const token =

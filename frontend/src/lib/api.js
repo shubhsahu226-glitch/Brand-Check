@@ -51,13 +51,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Do not attempt refresh on auth endpoints (login, signup, refresh, logout)
+    // Do not attempt refresh on auth endpoints (login, signup, refresh, logout, demo-login)
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url.includes('/auth/login') &&
       !originalRequest.url.includes('/auth/signup') &&
-      !originalRequest.url.includes('/auth/refresh')
+      !originalRequest.url.includes('/auth/refresh') &&
+      !originalRequest.url.includes('/auth/demo-login')
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

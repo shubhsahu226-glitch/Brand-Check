@@ -8,6 +8,7 @@ import {
   Sparkles,
   BookOpen,
   RefreshCw,
+  TrendingUp,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -277,10 +278,10 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {/* Placeholder Cards for Future Phases */}
+      {/* Workspace Modules & Quick Actions */}
       <div className="space-y-4">
         <h2 className="text-base font-semibold text-slate-800">
-          Upcoming Features
+          Workspace Modules & Actions
         </h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <NavLink
@@ -307,21 +308,29 @@ export default function AdminDashboard() {
             </p>
           </NavLink>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-purple-50 text-purple-600">
-              <Sparkles size={20} />
+          <NavLink
+            to="/analytics"
+            className="group rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50/50 to-white p-6 shadow-sm transition hover:border-purple-400 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-600 text-white shadow-sm">
+                <TrendingUp size={20} />
+              </div>
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                Live & Ready
+              </span>
             </div>
-            <span className="rounded bg-purple-50 px-2 py-0.5 text-[11px] font-semibold text-purple-700">
-              Phase 4 & 5: Review & Audit
+            <span className="rounded bg-purple-100/70 px-2 py-0.5 text-[11px] font-semibold text-purple-800">
+              Insights & Analytics
             </span>
-            <h3 className="mt-2.5 font-semibold text-slate-900">
-              Audit Logs & Team Metrics
+            <h3 className="mt-2.5 font-semibold text-slate-900 group-hover:text-purple-600 transition">
+              Audit Logs & Team Metrics &rarr;
             </h3>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              Track content approvals, reviewer turnaround times, and adherence
+            <p className="mt-1 text-xs leading-5 text-slate-600">
+              Track content approvals, reviewer turnaround times, compliance health scores, and adherence
               trends across your team.
             </p>
-          </div>
+          </NavLink>
         </div>
       </div>
     </div>

@@ -112,15 +112,30 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Route mounts
+// Route mounts - support both /api and root paths for proxy flexibility
 app.get('/api/me', requireAuth, me);
+app.get('/me', requireAuth, me);
+
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/invitations', invitationRoutes);
+app.use('/invitations', invitationRoutes);
+
 app.use('/api/members', memberRoutes);
+app.use('/members', memberRoutes);
+
 app.use('/api/workspaces', workspaceRoutes);
+app.use('/workspaces', workspaceRoutes);
+
 app.use('/api/brand-documents', brandDocumentRoutes);
+app.use('/brand-documents', brandDocumentRoutes);
+
 app.use('/api/knowledge', knowledgeRoutes);
+app.use('/knowledge', knowledgeRoutes);
+
 app.use('/api/drafts', draftRoutes);
+app.use('/drafts', draftRoutes);
 
 // Central 404 handler
 app.use(notFoundHandler);

@@ -88,37 +88,57 @@ export default function ReviewerDashboard() {
         </div>
       </div>
 
-      {/* Placeholder Cards for Future Reviewer Features */}
+      {/* Reviewer Capabilities & Quick Actions */}
       <div className="space-y-4">
-        <h2 className="text-base font-semibold text-slate-800">Upcoming Reviewer Capabilities</h2>
+        <h2 className="text-base font-semibold text-slate-800">Reviewer Capabilities</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
-              <ShieldCheck size={20} />
+          <NavLink
+            to="/drafts"
+            className="group rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/50 to-white p-6 shadow-sm transition hover:border-indigo-400 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm">
+                <ShieldCheck size={20} />
+              </div>
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                Live & Ready
+              </span>
             </div>
-            <span className="rounded bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
-              Phase 5: Decision Controls
+            <span className="rounded bg-indigo-100/70 px-2 py-0.5 text-[11px] font-semibold text-indigo-800">
+              Decision Controls
             </span>
-            <h3 className="mt-2.5 font-semibold text-slate-900">Explainable AI Findings</h3>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+            <h3 className="mt-2.5 font-semibold text-slate-900 group-hover:text-indigo-600 transition">
+              Explainable AI Findings &rarr;
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-slate-600">
               Inspect AI rule violations with exact citations to brand guidelines, allowing fast
               and defensible decisions.
             </p>
-          </div>
+          </NavLink>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-600">
-              <CheckCircle2 size={20} />
+          <NavLink
+            to="/analytics"
+            className="group rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50/50 to-white p-6 shadow-sm transition hover:border-amber-400 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-600 text-white shadow-sm">
+                <CheckCircle2 size={20} />
+              </div>
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                Live & Ready
+              </span>
             </div>
-            <span className="rounded bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
-              Phase 5: Audit Trail
+            <span className="rounded bg-amber-100/70 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+              Audit Trail
             </span>
-            <h3 className="mt-2.5 font-semibold text-slate-900">Immutable Publication Log</h3>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+            <h3 className="mt-2.5 font-semibold text-slate-900 group-hover:text-amber-600 transition">
+              Immutable Publication Log &rarr;
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-slate-600">
               Keep a permanent record of who reviewed each piece, what was changed, and who gave
               the final publishing sign-off.
             </p>
-          </div>
+          </NavLink>
         </div>
       </div>
     </div>

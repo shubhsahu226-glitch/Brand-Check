@@ -1,5 +1,11 @@
 require('dotenv').config();
 
+const dns = require('dns');
+// Prioritize IPv4 over IPv6 on Windows to eliminate multi-second DNS connection stalls
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
 const app = require('./app');
 const prisma = require('./lib/prisma');
 

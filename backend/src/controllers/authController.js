@@ -232,6 +232,8 @@ async function refresh(req, res, next) {
         data: { revokedAt: new Date() },
       });
       res.clearCookie(REFRESH_COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+    res.clearCookie(REFRESH_COOKIE_NAME, { ...CLEAR_COOKIE_OPTIONS, path: '/' });
+    res.clearCookie(REFRESH_COOKIE_NAME, { ...CLEAR_COOKIE_OPTIONS, path: '/auth' });
       return sendError(
         res,
         401,
@@ -242,6 +244,8 @@ async function refresh(req, res, next) {
 
     if (!existingToken) {
       res.clearCookie(REFRESH_COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+    res.clearCookie(REFRESH_COOKIE_NAME, { ...CLEAR_COOKIE_OPTIONS, path: '/' });
+    res.clearCookie(REFRESH_COOKIE_NAME, { ...CLEAR_COOKIE_OPTIONS, path: '/auth' });
       return sendError(
         res,
         401,
@@ -252,6 +256,8 @@ async function refresh(req, res, next) {
 
     if (new Date(existingToken.expiresAt) < new Date()) {
       res.clearCookie(REFRESH_COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+    res.clearCookie(REFRESH_COOKIE_NAME, { ...CLEAR_COOKIE_OPTIONS, path: '/' });
+    res.clearCookie(REFRESH_COOKIE_NAME, { ...CLEAR_COOKIE_OPTIONS, path: '/auth' });
       return sendError(res, 401, 'UNAUTHENTICATED', 'Refresh token expired');
     }
 
@@ -305,6 +311,8 @@ async function logout(req, res, next) {
     }
 
     res.clearCookie(REFRESH_COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+    res.clearCookie(REFRESH_COOKIE_NAME, { ...CLEAR_COOKIE_OPTIONS, path: '/' });
+    res.clearCookie(REFRESH_COOKIE_NAME, { ...CLEAR_COOKIE_OPTIONS, path: '/auth' });
 
     return res.status(200).json({
       message: 'Logged out successfully',
@@ -433,7 +441,15 @@ async function demoLogin(req, res, _next) {
       },
     });
 
-    res.cookie(REFRESH_COOKIE_NAME, rawRefreshToken, COOKIE_OPTIONS);
+    // Demo logins use a session cookie (no maxAge) so closing the browser tab or visiting root
+    // does not permanently lock the user into Demo Admin for 7 days.
+    const DEMO_COOKIE_OPTIONS = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: cookieSameSite,
+      path: '/api/auth',
+    };
+    res.cookie(REFRESH_COOKIE_NAME, rawRefreshToken, DEMO_COOKIE_OPTIONS);
 
     return res.status(200).json({
       accessToken,
