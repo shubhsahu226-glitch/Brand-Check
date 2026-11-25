@@ -108,7 +108,22 @@ export default function DraftEditorPage() {
 
       const res = await api.post(`/drafts/${id}/check`);
       if (res.data?.status === 'success') {
-        setDraft(res.data.data.draft);
+        const returnedDraft = res.data.data.draft || {};
+        const suggestions =
+          returnedDraft.suggestions && returnedDraft.suggestions.length > 0
+            ? returnedDraft.suggestions
+            : res.data.data.suggestions || [];
+        const score =
+          returnedDraft.complianceScore !== null && returnedDraft.complianceScore !== undefined
+            ? returnedDraft.complianceScore
+            : res.data.data.complianceScore;
+
+        const merged = {
+          ...returnedDraft,
+          complianceScore: score !== undefined ? score : 100,
+          suggestions,
+        };
+        setDraft(merged);
         toast.success(res.data.data.summary || 'Brand check complete!');
       }
     } catch (err) {
@@ -123,8 +138,34 @@ export default function DraftEditorPage() {
       const res = await api.post(`/drafts/${id}/suggestions/${suggestionId}/action`, { action });
       if (res.data?.status === 'success') {
         const updated = res.data.data.draft;
-        setDraft(updated);
-        setContent(updated.content);
+        if (updated && updated.suggestions && updated.suggestions.length > 0) {
+          setDraft(updated);
+          setContent(updated.content);
+        } else {
+          setDraft((prev) => {
+            if (!prev) return prev;
+            const updatedSuggestions = (prev.suggestions || []).map((s) =>
+              s.id === suggestionId ? { ...s, status: action === 'ACCEPT' ? 'ACCEPTED' : 'DISMISSED' } : s
+            );
+            const targetSug = (prev.suggestions || []).find((s) => s.id === suggestionId);
+            let newContent = prev.content;
+            if (action === 'ACCEPT' && targetSug?.suggestedText && targetSug?.originalText) {
+              newContent = newContent.replace(targetSug.originalText, targetSug.suggestedText);
+              setContent(newContent);
+            }
+            const pending = updatedSuggestions.filter((s) => s.status === 'PENDING');
+            let penalty = 0;
+            for (const s of pending) {
+              penalty += s.severity === 'ERROR' ? 20 : s.severity === 'WARNING' ? 10 : 5;
+            }
+            return {
+              ...prev,
+              content: newContent,
+              complianceScore: Math.max(0, Math.min(100, 100 - penalty)),
+              suggestions: updatedSuggestions,
+            };
+          });
+        }
         toast.success(action === 'ACCEPT' ? 'Suggestion accepted & applied' : 'Suggestion dismissed');
       }
     } catch (err) {

@@ -428,31 +428,56 @@ async function checkDraftCompliance(req, res, next) {
         },
       });
     } catch (_dbErr) {
-      const idx = demoDraftsStore.findIndex((d) => d.id === id);
-      if (idx !== -1) {
-        demoDraftsStore[idx].complianceScore = reviewResult.complianceScore;
-        demoDraftsStore[idx].suggestions = (reviewResult.suggestions || []).map(
-          (s, sIdx) => ({
-            id: `sug_${Date.now()}_${sIdx}`,
-            draftId: id,
-            category: s.category || 'RULE',
-            severity: s.severity || 'WARNING',
-            originalText: s.originalText,
-            suggestedText: s.suggestedText || null,
-            explanation: s.explanation,
-            status: 'PENDING',
-            createdAt: new Date().toISOString(),
-          })
-        );
-        updatedDraft = demoDraftsStore[idx];
+      // Database write error - resilient fallback
+    }
+
+    const suggestionsPayload = (reviewResult.suggestions || []).map(
+      (s, sIdx) => ({
+        id: s.id || `sug_${Date.now()}_${sIdx}`,
+        draftId: id,
+        ruleId: s.ruleId || null,
+        category: s.category || 'RULE',
+        severity: ['ERROR', 'WARNING', 'INFO'].includes(s.severity)
+          ? s.severity
+          : 'WARNING',
+        originalText: s.originalText,
+        suggestedText: s.suggestedText || null,
+        explanation: s.explanation,
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+      })
+    );
+
+    if (
+      !updatedDraft ||
+      !updatedDraft.suggestions ||
+      updatedDraft.suggestions.length === 0
+    ) {
+      updatedDraft = {
+        ...(draft || {}),
+        id,
+        workspaceId,
+        content: draft?.content || '',
+        title: draft?.title || 'Untitled Draft',
+        complianceScore: reviewResult.complianceScore,
+        suggestions: suggestionsPayload,
+      };
+
+      const dIdx = demoDraftsStore.findIndex((d) => d.id === id);
+      if (dIdx !== -1) {
+        demoDraftsStore[dIdx] = updatedDraft;
+      } else {
+        demoDraftsStore.unshift(updatedDraft);
       }
     }
 
     return res.status(200).json({
       status: 'success',
       data: {
-        draft: updatedDraft || draft,
+        draft: updatedDraft,
         summary: reviewResult.summary,
+        complianceScore: reviewResult.complianceScore,
+        suggestions: updatedDraft.suggestions || suggestionsPayload,
       },
     });
   } catch (err) {
@@ -499,20 +524,30 @@ async function applySuggestionAction(req, res, next) {
     }
 
     let finalDraft;
+    let suggestion;
     try {
-      const suggestion = await prisma.draftSuggestion.findFirst({
+      suggestion = await prisma.draftSuggestion.findFirst({
         where: { id: suggestionId, draftId },
       });
+    } catch (_dbErr) {
+      // DB offline, check fallback below
+    }
 
-      if (!suggestion) {
-        return sendError(
-          res,
-          404,
-          'SUGGESTION_NOT_FOUND',
-          'Suggestion not found for this draft'
-        );
-      }
+    if (!suggestion) {
+      const dStore = demoDraftsStore.find((d) => d.id === draftId);
+      suggestion = dStore?.suggestions?.find((s) => s.id === suggestionId);
+    }
 
+    if (!suggestion) {
+      return sendError(
+        res,
+        404,
+        'SUGGESTION_NOT_FOUND',
+        'Suggestion not found for this draft'
+      );
+    }
+
+    try {
       let updatedContent = draft.content;
 
       if (action === 'ACCEPT') {
@@ -569,37 +604,43 @@ async function applySuggestionAction(req, res, next) {
         },
       });
     } catch (_dbErr) {
-      const dIdx = demoDraftsStore.findIndex((d) => d.id === draftId);
-      if (dIdx !== -1) {
-        const sIdx = demoDraftsStore[dIdx].suggestions.findIndex(
-          (s) => s.id === suggestionId
-        );
-        if (sIdx !== -1) {
-          demoDraftsStore[dIdx].suggestions[sIdx].status =
-            action === 'ACCEPT' ? 'ACCEPTED' : 'DISMISSED';
-          if (
-            action === 'ACCEPT' &&
+      // Fall through to in-memory store update
+    }
+
+    if (!finalDraft) {
+      let dIdx = demoDraftsStore.findIndex((d) => d.id === draftId);
+      if (dIdx === -1) {
+        demoDraftsStore.unshift({ ...draft, suggestions: draft.suggestions || [] });
+        dIdx = 0;
+      }
+      const sIdx = demoDraftsStore[dIdx].suggestions.findIndex(
+        (s) => s.id === suggestionId
+      );
+      if (sIdx !== -1) {
+        demoDraftsStore[dIdx].suggestions[sIdx].status =
+          action === 'ACCEPT' ? 'ACCEPTED' : 'DISMISSED';
+        if (
+          action === 'ACCEPT' &&
+          demoDraftsStore[dIdx].suggestions[sIdx].suggestedText
+        ) {
+          demoDraftsStore[dIdx].content = demoDraftsStore[dIdx].content.replace(
+            demoDraftsStore[dIdx].suggestions[sIdx].originalText,
             demoDraftsStore[dIdx].suggestions[sIdx].suggestedText
-          ) {
-            demoDraftsStore[dIdx].content = demoDraftsStore[dIdx].content.replace(
-              demoDraftsStore[dIdx].suggestions[sIdx].originalText,
-              demoDraftsStore[dIdx].suggestions[sIdx].suggestedText
-            );
-          }
-          const pending = demoDraftsStore[dIdx].suggestions.filter(
-            (s) => s.status === 'PENDING'
           );
-          let penalty = 0;
-          for (const s of pending) {
-            penalty +=
-              s.severity === 'ERROR' ? 20 : s.severity === 'WARNING' ? 10 : 5;
-          }
-          demoDraftsStore[dIdx].complianceScore = Math.max(
-            0,
-            Math.min(100, 100 - penalty)
-          );
-          finalDraft = demoDraftsStore[dIdx];
         }
+        const pending = demoDraftsStore[dIdx].suggestions.filter(
+          (s) => s.status === 'PENDING'
+        );
+        let penalty = 0;
+        for (const s of pending) {
+          penalty +=
+            s.severity === 'ERROR' ? 20 : s.severity === 'WARNING' ? 10 : 5;
+        }
+        demoDraftsStore[dIdx].complianceScore = Math.max(
+          0,
+          Math.min(100, 100 - penalty)
+        );
+        finalDraft = demoDraftsStore[dIdx];
       }
     }
 
