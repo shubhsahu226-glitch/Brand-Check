@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   ShieldCheck,
-  CheckCircle2,
   AlertTriangle,
   Loader2,
   ArrowRight,
@@ -120,30 +119,30 @@ export default function AcceptInvitePage() {
   if (loading) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-        <p className="text-sm text-slate-500">Verifying invitation...</p>
+        <Loader2 className="h-8 w-8 animate-spin text-[#0f140f]" />
+        <p className="text-sm font-medium text-slate-500">Verifying invitation...</p>
       </div>
     );
   }
 
   if (error || !invitation) {
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-rose-200 bg-white p-7 text-center shadow-sm sm:p-9">
-        <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-rose-50 text-rose-600">
+      <div className="mx-auto max-w-md rounded-3xl border border-[#f07153]/30 bg-white p-7 text-center shadow-xs sm:p-9">
+        <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-[#fef2ee] text-[#f07153]">
           <AlertTriangle size={24} />
         </div>
-        <h1 className="text-xl font-bold text-slate-900">Invitation Error</h1>
+        <h1 className="text-xl font-bold text-[#0f140f]">Invitation Error</h1>
         <p className="mt-2 text-sm text-slate-600">{error || 'This invitation is not valid.'}</p>
         <div className="mt-6 flex justify-center gap-3">
           <NavLink
-            to="/login"
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            to="/?login=true"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#e4e8dc] bg-white px-4 py-2.5 text-xs font-semibold text-[#0f140f] hover:bg-[#fbfcf8]"
           >
             Log in
           </NavLink>
           <NavLink
             to="/"
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0f140f] px-4 py-2.5 text-xs font-bold text-[#d4ff32] hover:bg-[#1a231b]"
           >
             Go to Home
           </NavLink>
@@ -153,37 +152,37 @@ export default function AcceptInvitePage() {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-sm sm:p-9">
-      <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-indigo-50 text-indigo-600">
+    <div className="mx-auto max-w-md rounded-3xl border border-[#e4e8dc] bg-white p-7 shadow-xs sm:p-9">
+      <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-[#0f140f] text-[#d4ff32] shadow-xs">
         <ShieldCheck size={24} />
       </div>
 
-      <span className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+      <span className="rounded-md border border-[#d8e6db] bg-[#eef5ee] px-2.5 py-1 text-xs font-bold text-[#1c3822]">
         Workspace Invitation
       </span>
 
-      <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">
+      <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-[#0f140f]">
         Join {invitation.workspace?.name}
       </h1>
       <p className="mt-2 text-sm text-slate-600">
         You've been invited to join this workspace as a{' '}
-        <strong className="text-indigo-600 uppercase font-semibold">
+        <strong className="text-[#0f140f] uppercase font-bold">
           {invitation.role}
         </strong>
         .
       </p>
 
-      <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 p-3.5 text-xs text-slate-600">
+      <div className="mt-4 rounded-xl border border-[#e4e8dc] bg-[#fbfcf8] p-3.5 text-xs text-slate-600">
         Invitation sent to:{' '}
-        <strong className="font-semibold text-slate-900">{invitation.email}</strong>
+        <strong className="font-semibold text-[#0f140f]">{invitation.email}</strong>
       </div>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-semibold text-[#0f140f]">
             Full Name
             <input
-              className="form-input"
+              className="mt-1 w-full rounded-xl border border-[#e4e8dc] bg-white py-2.5 px-3.5 text-sm text-[#0f140f] placeholder-slate-400 outline-none transition focus:border-[#0f140f] focus:ring-2 focus:ring-[#d4ff32]/30"
               type="text"
               autoComplete="name"
               placeholder="e.g. Jane Doe"
@@ -191,15 +190,15 @@ export default function AcceptInvitePage() {
             />
           </label>
           {errors.name && (
-            <p className="mt-1 text-xs text-rose-600">{errors.name.message}</p>
+            <p className="mt-1 text-xs text-[#f07153] font-medium">{errors.name.message}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-semibold text-[#0f140f]">
             Password
             <input
-              className="form-input"
+              className="mt-1 w-full rounded-xl border border-[#e4e8dc] bg-white py-2.5 px-3.5 text-sm text-[#0f140f] placeholder-slate-400 outline-none transition focus:border-[#0f140f] focus:ring-2 focus:ring-[#d4ff32]/30"
               type="password"
               autoComplete="new-password"
               placeholder="••••••••"
@@ -207,15 +206,15 @@ export default function AcceptInvitePage() {
             />
           </label>
           {errors.password && (
-            <p className="mt-1 text-xs text-rose-600">{errors.password.message}</p>
+            <p className="mt-1 text-xs text-[#f07153] font-medium">{errors.password.message}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-semibold text-[#0f140f]">
             Confirm Password
             <input
-              className="form-input"
+              className="mt-1 w-full rounded-xl border border-[#e4e8dc] bg-white py-2.5 px-3.5 text-sm text-[#0f140f] placeholder-slate-400 outline-none transition focus:border-[#0f140f] focus:ring-2 focus:ring-[#d4ff32]/30"
               type="password"
               autoComplete="new-password"
               placeholder="••••••••"
@@ -223,7 +222,7 @@ export default function AcceptInvitePage() {
             />
           </label>
           {errors.confirmPassword && (
-            <p className="mt-1 text-xs text-rose-600">
+            <p className="mt-1 text-xs text-[#f07153] font-medium">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -232,11 +231,11 @@ export default function AcceptInvitePage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60"
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4ff32] px-4 py-3 text-sm font-bold text-[#0f140f] shadow-xs transition hover:bg-[#bfe818] active:scale-[0.98] disabled:opacity-60"
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin text-[#0f140f]" />
               <span>Joining Workspace...</span>
             </>
           ) : (

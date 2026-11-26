@@ -14,7 +14,7 @@ export default function ProtectedRoute({ allowedRoles, children }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/?login=true" state={{ from: location }} replace />;
   }
 
   const effectiveRole = currentWorkspace?.role || user.role;

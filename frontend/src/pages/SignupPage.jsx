@@ -81,19 +81,19 @@ export default function SignupPage() {
   };
 
   return (
-    <section className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-sm sm:p-9">
-      <div className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
-        <ShieldCheck size={23} />
+    <section className="glass-card-3d mx-auto w-full max-w-md rounded-3xl border border-[#e4e8dc] bg-white p-7 shadow-xl sm:p-9">
+      <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-[#0f140f] text-[#d4ff32] shadow-md">
+        <ShieldCheck size={24} />
       </div>
-      <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
+      <h1 className="text-2xl font-extrabold tracking-tight text-[#0f140f] sm:text-3xl">
         Create your account
       </h1>
       <p className="mt-2 text-sm leading-6 text-slate-600">
-        Get your team started with brand confident content.
+        Polished before Published — get your team started with brand confident content.
       </p>
 
       {tokenParam && (
-        <div className="mt-4 rounded-lg bg-indigo-50 p-3 text-xs text-indigo-700">
+        <div className="mt-4 rounded-xl border border-[#d8e6db] bg-[#eef5ee] p-3 text-xs font-semibold text-[#1c3822]">
           You are signing up to accept a workspace invitation.
         </div>
       )}
@@ -104,7 +104,7 @@ export default function SignupPage() {
         noValidate
       >
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
             Full Name
             <input
               className="form-input"
@@ -115,12 +115,12 @@ export default function SignupPage() {
             />
           </label>
           {errors.name && (
-            <p className="mt-1 text-xs text-rose-600">{errors.name.message}</p>
+            <p className="mt-1 text-xs font-semibold text-[#f07153]">{errors.name.message}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
             Work Email
             <input
               className="form-input"
@@ -131,12 +131,12 @@ export default function SignupPage() {
             />
           </label>
           {errors.email && (
-            <p className="mt-1 text-xs text-rose-600">{errors.email.message}</p>
+            <p className="mt-1 text-xs font-semibold text-[#f07153]">{errors.email.message}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
             Workspace Name
             <input
               className="form-input"
@@ -146,14 +146,14 @@ export default function SignupPage() {
             />
           </label>
           {errors.workspaceName && (
-            <p className="mt-1 text-xs text-rose-600">
+            <p className="mt-1 text-xs font-semibold text-[#f07153]">
               {errors.workspaceName.message}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
             Password
             <input
               className="form-input"
@@ -164,14 +164,14 @@ export default function SignupPage() {
             />
           </label>
           {errors.password && (
-            <p className="mt-1 text-xs text-rose-600">
+            <p className="mt-1 text-xs font-semibold text-[#f07153]">
               {errors.password.message}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
             Confirm Password
             <input
               className="form-input"
@@ -182,7 +182,7 @@ export default function SignupPage() {
             />
           </label>
           {errors.confirmPassword && (
-            <p className="mt-1 text-xs text-rose-600">
+            <p className="mt-1 text-xs font-semibold text-[#f07153]">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -191,21 +191,21 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-2 flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4ff32] px-4 py-3.5 text-sm font-extrabold text-[#0f140f] shadow-sm transition duration-150 hover:bg-[#bfe818] active:scale-[0.98] disabled:opacity-60"
         >
           {isSubmitting ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin text-[#0f140f]" />
           ) : (
             'Create account & workspace'
           )}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-slate-500">
+      <p className="mt-6 text-center text-sm text-slate-600">
         Already have an account?{' '}
         <NavLink
-          to="/login"
-          className="font-medium text-indigo-600 hover:text-indigo-500"
+          to="/?login=true"
+          className="font-bold text-[#0f140f] underline decoration-[#d4ff32] decoration-2 underline-offset-4 hover:text-black"
         >
           Sign in
         </NavLink>

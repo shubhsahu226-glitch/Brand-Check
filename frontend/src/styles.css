@@ -3,28 +3,38 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --brand-lime: #d4ff32;
+  --brand-obsidian: #0f140f;
+  --brand-surface: #f7f8f3;
+  --brand-sage: #d8e6db;
+  --brand-coral: #f07153;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #f7f8f3;
+  color: #0f140f;
 }
 
 button,
-input {
+input,
+textarea,
+select {
   font: inherit;
 }
 
 @layer components {
   .form-input {
-    @apply mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-3 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100;
+    @apply mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0f140f] focus:ring-2 focus:ring-[#d4ff32]/40;
   }
 }
 
+/* Floating Animations */
 @keyframes float-slow {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
@@ -85,22 +95,22 @@ input {
   backface-visibility: hidden;
 }
 
-/* 3D Floating Keyframes with Multi-Axis Rotation & Elevation */
+/* 3D Floating Keyframes */
 @keyframes float-3d-alpha {
   0%, 100% {
-    transform: perspective(1000px) translateY(0px) rotateX(5deg) rotateY(-8deg) translateZ(0px);
+    transform: perspective(1000px) translateY(0px) rotateX(4deg) rotateY(-6deg) translateZ(0px);
   }
   50% {
-    transform: perspective(1000px) translateY(-18px) rotateX(-5deg) rotateY(8deg) translateZ(24px);
+    transform: perspective(1000px) translateY(-14px) rotateX(-4deg) rotateY(6deg) translateZ(20px);
   }
 }
 
 @keyframes float-3d-beta {
   0%, 100% {
-    transform: perspective(1000px) translateY(0px) rotateX(-6deg) rotateY(10deg) translateZ(0px);
+    transform: perspective(1000px) translateY(0px) rotateX(-5deg) rotateY(8deg) translateZ(0px);
   }
   50% {
-    transform: perspective(1000px) translateY(16px) rotateX(6deg) rotateY(-8deg) translateZ(18px);
+    transform: perspective(1000px) translateY(14px) rotateX(5deg) rotateY(-6deg) translateZ(16px);
   }
 }
 
@@ -109,7 +119,7 @@ input {
     transform: perspective(1000px) translateY(0px) rotateZ(0deg) translateZ(0px);
   }
   50% {
-    transform: perspective(1000px) translateY(-12px) rotateZ(3deg) translateZ(14px);
+    transform: perspective(1000px) translateY(-10px) rotateZ(2deg) translateZ(12px);
   }
 }
 
@@ -131,8 +141,17 @@ input {
     transform: scale(1);
   }
   50% {
-    opacity: 0.65;
-    transform: scale(1.04);
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
 
@@ -149,33 +168,61 @@ input {
 }
 
 .animate-spin-slow-3d {
-  animation: spin-slow-3d 20s linear infinite;
+  animation: spin-slow-3d 22s linear infinite;
 }
 
 .animate-pulse-mesh {
   animation: pulse-mesh 8s ease-in-out infinite;
 }
 
-/* 3D Background Grid & Specular Texture Patterns */
+.animate-marquee {
+  display: flex;
+  width: 200%;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Background Patterns & Textures */
 .bg-grid-isometric {
-  background-size: 40px 40px;
+  background-size: 36px 36px;
   background-image: 
-    linear-gradient(to right, rgba(99, 102, 241, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
+    linear-gradient(to right, rgba(15, 20, 15, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 20, 15, 0.05) 1px, transparent 1px);
+}
+
+.bg-grid-isometric-dark {
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(212, 255, 50, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(212, 255, 50, 0.08) 1px, transparent 1px);
 }
 
 .bg-radial-fade {
-  mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
-  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+  mask-image: radial-gradient(circle at center, black 45%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at center, black 45%, transparent 80%);
 }
 
+/* Glass & Surface Cards */
 .glass-card-3d {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(228, 232, 220, 0.9);
   box-shadow: 
-    0 10px 30px -10px rgba(99, 102, 241, 0.12),
-    0 20px 40px -15px rgba(15, 23, 42, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 10px 30px -10px rgba(15, 20, 15, 0.08),
+    0 20px 40px -15px rgba(15, 20, 15, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.glass-card-dark {
+  background: rgba(21, 28, 21, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 15px 35px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }

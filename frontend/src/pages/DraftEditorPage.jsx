@@ -6,14 +6,11 @@ import {
   Save,
   Send,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
   ArrowLeft,
   Check,
   X,
-  HelpCircle,
   ShieldCheck,
-  RefreshCw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
@@ -214,21 +211,21 @@ export default function DraftEditorPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       {/* Top Navigation Bar */}
-      <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-[#e4e8dc] pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <NavLink
             to="/drafts"
-            className="rounded-xl border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+            className="rounded-xl border border-[#e4e8dc] p-2 text-[#0f140f] transition hover:bg-[#eef5ee]"
           >
             <ArrowLeft size={18} />
           </NavLink>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">
+              <span className="rounded-md border border-[#d8e6db] bg-[#eef5ee] px-2 py-0.5 text-xs font-bold text-[#1c3822]">
                 {currentWorkspace?.name || 'Workspace'}
               </span>
               <span className="text-slate-300">•</span>
-              <span className="text-xs font-medium text-slate-500">
+              <span className="text-xs font-bold text-slate-500">
                 {isNew ? 'New Draft' : `Status: ${draft?.status || 'DRAFT'}`}
               </span>
             </div>
@@ -237,7 +234,7 @@ export default function DraftEditorPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Draft Title..."
-              className="mt-0.5 text-xl font-bold text-slate-950 focus:border-b focus:border-indigo-500 focus:outline-none sm:text-2xl"
+              className="mt-0.5 text-xl font-extrabold text-[#0f140f] focus:border-b-2 focus:border-[#0f140f] focus:outline-none sm:text-2xl"
             />
           </div>
         </div>
@@ -247,7 +244,7 @@ export default function DraftEditorPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[#e4e8dc] bg-white px-3.5 py-2 text-xs font-bold text-[#0f140f] shadow-xs hover:bg-[#fbfcf8]"
           >
             <Save size={15} />
             <span>{saving ? 'Saving...' : 'Save Draft'}</span>
@@ -257,7 +254,7 @@ export default function DraftEditorPage() {
             <button
               onClick={handleRunCheck}
               disabled={checking}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:from-indigo-700 hover:to-purple-700 disabled:opacity-70"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#d4ff32] px-4 py-2 text-xs font-bold text-[#0f140f] shadow-xs transition hover:bg-[#bfe818] active:scale-[0.98] disabled:opacity-70"
             >
               <Sparkles size={15} className={checking ? 'animate-spin' : ''} />
               <span>{checking ? 'Analyzing Brand Rules...' : 'Run Brand Check'}</span>
@@ -267,7 +264,7 @@ export default function DraftEditorPage() {
           {!isNew && (role === 'CREATOR' || role === 'ADMIN') && draft?.status !== 'APPROVED' && (
             <button
               onClick={handleSubmitForReview}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-600"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#0f140f] px-3.5 py-2 text-xs font-bold text-[#d4ff32] shadow-xs transition hover:bg-[#1a231b]"
             >
               <Send size={15} />
               <span>Submit for Review</span>
@@ -280,7 +277,7 @@ export default function DraftEditorPage() {
                 setReviewDecision('APPROVED');
                 setReviewModalOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#d8e6db] bg-[#eef5ee] px-3.5 py-2 text-xs font-bold text-[#1c3822] shadow-xs transition hover:bg-[#d8e6db]"
             >
               <CheckCircle2 size={15} />
               <span>Review Decision</span>
@@ -290,8 +287,8 @@ export default function DraftEditorPage() {
       </div>
 
       {loading ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center shadow-sm">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+        <div className="rounded-3xl border border-[#e4e8dc] bg-white p-16 text-center shadow-xs">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#0f140f] border-t-[#d4ff32]" />
           <p className="mt-3 text-xs text-slate-500">Loading draft workspace...</p>
         </div>
       ) : (
@@ -299,10 +296,10 @@ export default function DraftEditorPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Left Column: Draft Content Editor (7 Cols) */}
           <div className="space-y-4 lg:col-span-7">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-3 text-xs text-slate-400">
-                <span className="font-medium text-slate-600">Draft Content Editor</span>
-                <div className="flex items-center gap-3">
+            <div className="rounded-3xl border border-[#e4e8dc] bg-white p-6 shadow-xs">
+              <div className="mb-3 flex items-center justify-between border-b border-[#e4e8dc] pb-3 text-xs text-slate-400">
+                <span className="font-bold uppercase tracking-wider text-[#0f140f]">Draft Content Editor</span>
+                <div className="flex items-center gap-3 font-semibold text-slate-500">
                   <span>{wordCount} words</span>
                   <span>•</span>
                   <span>{charCount} characters</span>
@@ -314,25 +311,27 @@ export default function DraftEditorPage() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Paste or write your marketing copy, social post, or launch announcement here..."
-                className="w-full resize-y rounded-xl border border-slate-200 p-4 font-mono text-sm leading-relaxed text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full resize-y rounded-2xl border border-[#e4e8dc] bg-[#fbfcf8] p-4 font-mono text-sm leading-relaxed text-[#0f140f] placeholder-slate-400 focus:border-[#0f140f] focus:bg-white focus:outline-none"
               />
 
               {draft?.reviewNote && (
-                <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-4">
-                  <div className="flex items-center gap-2 text-xs font-bold text-amber-800">
+                <div className="mt-4 rounded-2xl border border-[#f07153]/30 bg-[#fef2ee] p-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#c2410c]">
                     <AlertTriangle size={14} />
                     <span>Reviewer Note:</span>
                   </div>
-                  <p className="mt-1 text-xs text-amber-900">{draft.reviewNote}</p>
+                  <p className="mt-1 text-xs text-[#9a3412] leading-relaxed">{draft.reviewNote}</p>
                 </div>
               )}
             </div>
 
             {/* Human-in-the-Loop Safeguard Notice */}
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-500">
-              <ShieldCheck size={20} className="shrink-0 text-indigo-600" />
-              <p>
-                <strong>Human-Led Guarantee:</strong> BrandCheck AI suggests and highlights brand guideline deviations.
+            <div className="flex items-center gap-3 rounded-2xl border border-[#212a22] bg-[#0f140f] p-4 text-xs text-white shadow-xs">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#d4ff32] text-[#0f140f]">
+                <ShieldCheck size={18} />
+              </div>
+              <p className="text-slate-200">
+                <strong className="text-white">Polished before Published:</strong> BrandCheck AI suggests and highlights brand guideline deviations.
                 You retain complete control to accept, edit, or dismiss each recommendation before publishing.
               </p>
             </div>
@@ -341,21 +340,21 @@ export default function DraftEditorPage() {
           {/* Right Column: Brand Check Compliance Studio (5 Cols) */}
           <div className="space-y-4 lg:col-span-5">
             {/* Compliance Score Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-3xl border border-[#e4e8dc] bg-white p-6 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">Brand Compliance Score</h3>
+                  <h3 className="text-sm font-bold text-[#0f140f]">Brand Compliance Score</h3>
                   <p className="text-xs text-slate-500">Evaluated against approved workspace guidelines</p>
                 </div>
 
                 <div className="text-right">
                   <span
-                    className={`inline-block text-2xl font-black ${
+                    className={`inline-block text-3xl font-extrabold ${
                       (draft?.complianceScore ?? 100) >= 85
-                        ? 'text-emerald-600'
+                        ? 'text-[#0f140f]'
                         : (draft?.complianceScore ?? 100) >= 60
                         ? 'text-amber-600'
-                        : 'text-rose-600'
+                        : 'text-[#f07153]'
                     }`}
                   >
                     {draft?.complianceScore !== null && draft?.complianceScore !== undefined
@@ -366,24 +365,24 @@ export default function DraftEditorPage() {
               </div>
 
               {/* Progress Bar */}
-              <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-3.5 h-2 w-full overflow-hidden rounded-full bg-[#eef5ee]">
                 <div
                   className={`h-full transition-all duration-500 ${
                     (draft?.complianceScore ?? 100) >= 85
-                      ? 'bg-emerald-500'
+                      ? 'bg-[#d4ff32]'
                       : (draft?.complianceScore ?? 100) >= 60
                       ? 'bg-amber-500'
-                      : 'bg-rose-500'
+                      : 'bg-[#f07153]'
                   }`}
                   style={{ width: `${draft?.complianceScore ?? 0}%` }}
                 />
               </div>
 
-              <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
-                <span className="text-slate-500">
+              <div className="mt-4 flex items-center justify-between border-t border-[#e4e8dc] pt-3 text-xs">
+                <span className="font-semibold text-slate-500">
                   {pendingSuggestions.length} pending finding{pendingSuggestions.length !== 1 ? 's' : ''}
                 </span>
-                <span className="text-emerald-600 font-medium">
+                <span className="font-bold text-[#1c3822]">
                   {acceptedSuggestions.length} accepted
                 </span>
               </div>
@@ -392,18 +391,18 @@ export default function DraftEditorPage() {
             {/* Suggestions & Violations Stream */}
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Guideline Findings & Corrections
+                Guideline Findings &amp; Corrections
               </h3>
 
               {isNew ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
+                <div className="rounded-3xl border border-dashed border-[#e4e8dc] bg-white p-8 text-center">
                   <p className="text-xs text-slate-500">Save draft and click "Run Brand Check" to view findings.</p>
                 </div>
               ) : suggestions.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
-                  <CheckCircle2 size={32} className="mx-auto text-emerald-500" />
-                  <h4 className="mt-2 text-sm font-semibold text-slate-800">Clean Brand Report</h4>
-                  <p className="mt-1 text-xs text-slate-500">
+                <div className="rounded-3xl border border-dashed border-[#d8e6db] bg-[#eef5ee] p-8 text-center">
+                  <CheckCircle2 size={32} className="mx-auto text-[#1c3822]" />
+                  <h4 className="mt-2 text-sm font-bold text-[#1c3822]">Clean Brand Report</h4>
+                  <p className="mt-1 text-xs text-[#2d5034]">
                     No active brand violations detected. Click "Run Brand Check" to re-scan.
                   </p>
                 </div>
@@ -411,35 +410,35 @@ export default function DraftEditorPage() {
                 suggestions.map((s) => (
                   <div
                     key={s.id}
-                    className={`rounded-2xl border p-4 shadow-sm transition ${
+                    className={`rounded-2xl border p-4 shadow-xs transition ${
                       s.status === 'ACCEPTED'
-                        ? 'border-emerald-200 bg-emerald-50/40 opacity-75'
+                        ? 'border-[#d8e6db] bg-[#eef5ee] opacity-80'
                         : s.status === 'DISMISSED'
-                        ? 'border-slate-200 bg-slate-50/60 opacity-50'
+                        ? 'border-slate-200 bg-slate-50 opacity-50'
                         : s.severity === 'ERROR'
-                        ? 'border-rose-200 bg-rose-50/40'
-                        : 'border-amber-200 bg-amber-50/40'
+                        ? 'border-[#f07153]/30 bg-[#fef2ee]'
+                        : 'border-amber-200 bg-amber-50/50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                             s.severity === 'ERROR'
-                              ? 'bg-rose-100 text-rose-800'
+                              ? 'border border-[#f07153]/40 bg-[#0f140f] text-[#f07153]'
                               : s.severity === 'WARNING'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-blue-100 text-blue-800'
+                              ? 'border border-amber-300 bg-amber-100 text-amber-900'
+                              : 'border border-[#d8e6db] bg-[#eef5ee] text-[#1c3822]'
                           }`}
                         >
                           {s.severity}
                         </span>
-                        <span className="text-[11px] font-semibold text-slate-600">
+                        <span className="text-[11px] font-bold text-slate-700">
                           {s.category}
                         </span>
                       </div>
 
-                      <span className="text-[10px] font-medium uppercase text-slate-400">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">
                         {s.status}
                       </span>
                     </div>
@@ -447,16 +446,16 @@ export default function DraftEditorPage() {
                     {/* Flagged and Suggested Text */}
                     <div className="mt-2.5 space-y-1.5 text-xs">
                       <div>
-                        <span className="text-[10px] font-semibold text-slate-400">FLAGGED COPY:</span>
-                        <p className="font-mono text-rose-700 bg-rose-50 px-2 py-1 rounded border border-rose-200 line-through">
+                        <span className="text-[10px] font-bold uppercase text-slate-400">FLAGGED COPY:</span>
+                        <p className="mt-0.5 rounded-lg border border-[#f07153]/30 bg-white px-2 py-1 font-mono text-[#c2410c] line-through">
                           "{s.originalText}"
                         </p>
                       </div>
 
                       {s.suggestedText && (
                         <div>
-                          <span className="text-[10px] font-semibold text-slate-400">RECOMMENDED FIX:</span>
-                          <p className="font-mono text-emerald-800 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                          <span className="text-[10px] font-bold uppercase text-slate-400">RECOMMENDED FIX:</span>
+                          <p className="mt-0.5 rounded-lg border border-[#d8e6db] bg-white px-2 py-1 font-mono text-[#1c3822] font-semibold">
                             "{s.suggestedText}"
                           </p>
                         </div>
@@ -473,7 +472,7 @@ export default function DraftEditorPage() {
                       <div className="mt-3 flex items-center justify-end gap-2 border-t border-slate-200/60 pt-2.5">
                         <button
                           onClick={() => handleSuggestionAction(s.id, 'DISMISS')}
-                          className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
+                          className="inline-flex items-center gap-1 rounded-lg border border-[#e4e8dc] bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-[#fbfcf8]"
                         >
                           <X size={12} />
                           <span>Dismiss</span>
@@ -481,7 +480,7 @@ export default function DraftEditorPage() {
 
                         <button
                           onClick={() => handleSuggestionAction(s.id, 'ACCEPT')}
-                          className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-indigo-700"
+                          className="inline-flex items-center gap-1 rounded-lg bg-[#0f140f] px-3 py-1 text-[11px] font-bold text-[#d4ff32] shadow-xs hover:bg-[#1a231b]"
                         >
                           <Check size={12} />
                           <span>Accept Correction</span>
@@ -498,24 +497,24 @@ export default function DraftEditorPage() {
 
       {/* Review Decision Modal */}
       {reviewModalOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-slate-900">Formal Review Decision</h3>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-[#0f140f]/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-3xl border border-[#e4e8dc] bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-extrabold text-[#0f140f]">Formal Review Decision</h3>
             <p className="mt-1 text-xs text-slate-500">
               Record approval or request revisions with structured feedback.
             </p>
 
             <div className="mt-4 space-y-3">
               <div>
-                <label className="text-xs font-semibold text-slate-700">Decision</label>
+                <label className="text-xs font-bold text-[#0f140f]">Decision</label>
                 <div className="mt-1.5 grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setReviewDecision('APPROVED')}
                     className={`rounded-xl border p-2.5 text-xs font-bold transition ${
                       reviewDecision === 'APPROVED'
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'border-[#1c3822] bg-[#eef5ee] text-[#1c3822]'
+                        : 'border-[#e4e8dc] text-slate-600 hover:bg-[#fbfcf8]'
                     }`}
                   >
                     ✓ Approve Content
@@ -525,8 +524,8 @@ export default function DraftEditorPage() {
                     onClick={() => setReviewDecision('CHANGES_REQUESTED')}
                     className={`rounded-xl border p-2.5 text-xs font-bold transition ${
                       reviewDecision === 'CHANGES_REQUESTED'
-                        ? 'border-rose-600 bg-rose-50 text-rose-800'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'border-[#f07153] bg-[#fef2ee] text-[#c2410c]'
+                        : 'border-[#e4e8dc] text-slate-600 hover:bg-[#fbfcf8]'
                     }`}
                   >
                     ⚠ Request Changes
@@ -535,13 +534,13 @@ export default function DraftEditorPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700">Reviewer Note / Feedback</label>
+                <label className="text-xs font-bold text-[#0f140f]">Reviewer Note / Feedback</label>
                 <textarea
                   rows={4}
                   value={reviewNote}
                   onChange={(e) => setReviewNote(e.target.value)}
                   placeholder="Provide guidance on required edits or approval confirmation..."
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 p-2.5 text-xs focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-xl border border-[#e4e8dc] bg-[#fbfcf8] p-2.5 text-xs text-[#0f140f] focus:border-[#0f140f] focus:bg-white focus:outline-none"
                 />
               </div>
             </div>
@@ -550,14 +549,14 @@ export default function DraftEditorPage() {
               <button
                 type="button"
                 onClick={() => setReviewModalOpen(false)}
-                className="rounded-xl border border-slate-200 px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                className="rounded-xl border border-[#e4e8dc] px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-[#fbfcf8]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleReviewDecisionSubmit}
-                className="rounded-xl bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
+                className="rounded-xl bg-[#0f140f] px-4 py-1.5 text-xs font-bold text-[#d4ff32] shadow-xs hover:bg-[#1a231b]"
               >
                 Submit Decision
               </button>

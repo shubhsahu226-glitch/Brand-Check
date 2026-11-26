@@ -10,7 +10,6 @@ import {
   AlertTriangle,
   ChevronRight,
   Trash2,
-  ShieldCheck,
   RefreshCw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -82,25 +81,25 @@ export default function DraftsListPage() {
     switch (status) {
       case 'APPROVED':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[#d8e6db] bg-[#eef5ee] px-2.5 py-0.5 text-xs font-bold text-[#1c3822]">
             <CheckCircle2 size={12} /> Approved
           </span>
         );
       case 'IN_REVIEW':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[#f07153]/30 bg-[#fef2ee] px-2.5 py-0.5 text-xs font-bold text-[#c2410c]">
             <Clock size={12} /> In Review
           </span>
         );
       case 'CHANGES_REQUESTED':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800">
+          <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-xs font-bold text-rose-800">
             <AlertTriangle size={12} /> Changes Requested
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700">
             <FileText size={12} /> Draft
           </span>
         );
@@ -110,19 +109,19 @@ export default function DraftsListPage() {
   const getScoreBadge = (score) => {
     if (score === null || score === undefined) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+        <span className="inline-flex items-center gap-1 rounded-lg border border-[#e4e8dc] bg-[#fbfcf8] px-2.5 py-1 text-xs font-medium text-slate-500">
           Not checked
         </span>
       );
     }
-    let colorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    let colorClass = 'border-[#d4ff32]/60 bg-[#0f140f] text-[#d4ff32]';
     if (score < 60) {
-      colorClass = 'bg-rose-50 text-rose-700 border-rose-200';
+      colorClass = 'border-[#f07153]/40 bg-[#fef2ee] text-[#c2410c]';
     } else if (score < 85) {
-      colorClass = 'bg-amber-50 text-amber-700 border-amber-200';
+      colorClass = 'border-amber-300 bg-amber-50 text-amber-900';
     }
     return (
-      <span className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold ${colorClass}`}>
+      <span className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-xs font-bold ${colorClass}`}>
         <Sparkles size={12} />
         {score}/100
       </span>
@@ -135,8 +134,8 @@ export default function DraftsListPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
-              Drafts & Brand Review Studio
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#0f140f] sm:text-3xl">
+              Drafts &amp; Brand Review Studio
             </h1>
           </div>
           <p className="mt-1 text-sm text-slate-600">
@@ -146,7 +145,7 @@ export default function DraftsListPage() {
 
         <NavLink
           to="/drafts/new"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#d4ff32] px-4 py-2.5 text-sm font-bold text-[#0f140f] shadow-xs transition hover:bg-[#bfe818] active:scale-[0.98]"
         >
           <Plus size={18} />
           <span>New Draft</span>
@@ -155,37 +154,37 @@ export default function DraftsListPage() {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium text-slate-500">Total Drafts</p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{stats.total}</p>
+        <div className="rounded-3xl border border-[#e4e8dc] bg-white p-5 shadow-xs">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Drafts</p>
+          <p className="mt-1.5 text-2xl font-extrabold text-[#0f140f]">{stats.total}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium text-slate-500">In Review Queue</p>
-          <p className="mt-1 text-2xl font-bold text-amber-600">{stats.inReview}</p>
+        <div className="rounded-3xl border border-[#e4e8dc] bg-white p-5 shadow-xs">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">In Review Queue</p>
+          <p className="mt-1.5 text-2xl font-extrabold text-[#f07153]">{stats.inReview}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium text-slate-500">Approved Content</p>
-          <p className="mt-1 text-2xl font-bold text-emerald-600">{stats.approved}</p>
+        <div className="rounded-3xl border border-[#e4e8dc] bg-white p-5 shadow-xs">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Approved Content</p>
+          <p className="mt-1.5 text-2xl font-extrabold text-[#1c3822]">{stats.approved}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium text-slate-500">Avg Compliance Score</p>
-          <p className="mt-1 text-2xl font-bold text-indigo-600">
+        <div className="rounded-3xl border border-[#e4e8dc] bg-white p-5 shadow-xs">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Avg Compliance Score</p>
+          <p className="mt-1.5 text-2xl font-extrabold text-[#0f140f]">
             {stats.avgScore !== null ? `${stats.avgScore}%` : 'N/A'}
           </p>
         </div>
       </div>
 
       {/* Filter and Search Controls */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-[#e4e8dc] bg-white p-3.5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-1.5">
           {['ALL', 'DRAFT', 'IN_REVIEW', 'CHANGES_REQUESTED', 'APPROVED'].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
                 statusFilter === status
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  ? 'bg-[#0f140f] text-[#d4ff32]'
+                  : 'border border-[#e4e8dc] bg-[#fbfcf8] text-slate-600 hover:bg-[#eef5ee] hover:text-[#0f140f]'
               }`}
             >
               {status === 'ALL'
@@ -210,13 +209,13 @@ export default function DraftsListPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search title or content..."
-              className="w-full rounded-xl border border-slate-200 py-1.5 pl-9 pr-3 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-xl border border-[#e4e8dc] bg-[#fbfcf8] py-1.5 pl-9 pr-3 text-xs text-[#0f140f] placeholder-slate-400 focus:border-[#0f140f] focus:bg-white focus:outline-none"
             />
           </div>
           <button
             onClick={fetchDrafts}
             title="Refresh drafts"
-            className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+            className="rounded-xl border border-[#e4e8dc] p-2 text-[#0f140f] hover:bg-[#eef5ee]"
           >
             <RefreshCw size={15} />
           </button>
@@ -225,16 +224,16 @@ export default function DraftsListPage() {
 
       {/* Drafts List Table/Cards */}
       {loading ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+        <div className="rounded-3xl border border-[#e4e8dc] bg-white p-12 text-center shadow-xs">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#0f140f] border-t-[#d4ff32]" />
           <p className="mt-3 text-xs text-slate-500">Loading drafts...</p>
         </div>
       ) : filteredDrafts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
-          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-indigo-50 text-indigo-600">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#e4e8dc] bg-white p-12 text-center shadow-xs">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0f140f] text-[#d4ff32] shadow-xs">
             <FileText size={24} />
           </div>
-          <h3 className="mt-4 font-semibold text-slate-900">No drafts found</h3>
+          <h3 className="mt-4 font-bold text-[#0f140f]">No drafts found</h3>
           <p className="mt-1 text-xs text-slate-500">
             {search
               ? 'No drafts matched your search query.'
@@ -243,7 +242,7 @@ export default function DraftsListPage() {
           {!search && (
             <NavLink
               to="/drafts/new"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#d4ff32] px-4 py-2 text-xs font-bold text-[#0f140f] shadow-xs hover:bg-[#bfe818]"
             >
               <Plus size={16} />
               <span>Create New Draft</span>
@@ -256,23 +255,23 @@ export default function DraftsListPage() {
             <div
               key={draft.id}
               onClick={() => navigate(`/drafts/${draft.id}`)}
-              className="group flex cursor-pointer flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-indigo-300 hover:shadow-md sm:flex-row sm:items-center"
+              className="group flex cursor-pointer flex-col justify-between gap-4 rounded-3xl border border-[#e4e8dc] bg-white p-5 shadow-xs transition hover:border-[#0f140f] hover:shadow-md sm:flex-row sm:items-center"
             >
               <div className="min-w-0 flex-1 space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="truncate text-base font-semibold text-slate-950 group-hover:text-indigo-600">
+                  <h3 className="truncate text-base font-extrabold text-[#0f140f] group-hover:text-[#0f140f]">
                     {draft.title}
                   </h3>
                   {getStatusBadge(draft.status)}
                 </div>
-                <p className="line-clamp-2 text-xs text-slate-500">
+                <p className="line-clamp-2 text-xs leading-relaxed text-slate-600">
                   {draft.content}
                 </p>
                 <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-400">
-                  <span>Author: <strong className="text-slate-600">{draft.creator?.name || 'You'}</strong></span>
+                  <span>Author: <strong className="text-slate-700">{draft.creator?.name || 'You'}</strong></span>
                   <span>Updated: {new Date(draft.updatedAt).toLocaleDateString()}</span>
                   {draft.reviewer && (
-                    <span>Reviewer: <strong className="text-slate-600">{draft.reviewer.name}</strong></span>
+                    <span>Reviewer: <strong className="text-slate-700">{draft.reviewer.name}</strong></span>
                   )}
                 </div>
               </div>
@@ -288,7 +287,7 @@ export default function DraftsListPage() {
                   <Trash2 size={16} />
                 </button>
 
-                <div className="flex items-center gap-1 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 transition group-hover:bg-indigo-600 group-hover:text-white">
+                <div className="flex items-center gap-1 rounded-xl bg-[#0f140f] px-3 py-2 text-xs font-bold text-[#d4ff32] shadow-xs transition group-hover:bg-[#1a231b]">
                   <span>Open Studio</span>
                   <ChevronRight size={14} />
                 </div>

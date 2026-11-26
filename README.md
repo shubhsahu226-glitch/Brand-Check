@@ -1,4 +1,4 @@
-# BrandCheck
+# BrandCheck — Polished before Published
 
 BrandCheck is an enterprise brand compliance and review platform. It gives creative teams instant AI-assisted brand guideline checks, verified fact retrieval, and explainable findings before content goes live.
 

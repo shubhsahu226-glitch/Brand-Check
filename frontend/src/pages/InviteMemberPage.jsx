@@ -11,7 +11,6 @@ import {
   Check,
   Loader2,
   Mail,
-  Shield,
   FileText,
   CheckSquare,
 } from 'lucide-react';
@@ -89,47 +88,47 @@ export default function InviteMemberPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <NavLink
         to="/dashboard/admin"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition hover:text-slate-800"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition hover:text-[#0f140f]"
       >
         <ArrowLeft size={14} /> Back to Admin Dashboard
       </NavLink>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm sm:p-9">
-        <div className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
+      <div className="rounded-3xl border border-[#e4e8dc] bg-white p-7 shadow-xs sm:p-9">
+        <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-[#0f140f] text-[#d4ff32] shadow-xs">
           <UserPlus size={22} />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-950">Invite Team Member</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-[#0f140f]">Invite Team Member</h1>
         <p className="mt-1.5 text-sm text-slate-600">
           Invite a collaborator to join{' '}
-          <strong className="text-slate-900">{currentWorkspace?.name}</strong>.
+          <strong className="text-[#0f140f]">{currentWorkspace?.name}</strong>.
         </p>
 
         {sentInvitation ? (
-          <div className="mt-8 rounded-xl border border-emerald-200 bg-emerald-50/70 p-6">
+          <div className="mt-8 rounded-2xl border border-[#d8e6db] bg-[#eef5ee] p-6">
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#1c3822] shrink-0" />
               <div className="space-y-1">
-                <h3 className="font-semibold text-emerald-950">Invitation Sent Successfully!</h3>
-                <p className="text-sm text-emerald-800">
+                <h3 className="font-bold text-[#1c3822]">Invitation Sent Successfully!</h3>
+                <p className="text-sm text-[#2d5034]">
                   An invitation email has been dispatched to{' '}
-                  <strong className="font-medium text-emerald-950">{sentInvitation.email}</strong>{' '}
-                  as a <span className="font-semibold uppercase">{sentInvitation.role}</span>.
+                  <strong className="font-semibold text-[#1c3822]">{sentInvitation.email}</strong>{' '}
+                  as a <span className="font-bold uppercase">{sentInvitation.role}</span>.
                 </p>
               </div>
             </div>
 
-            <div className="mt-5 rounded-lg border border-emerald-200 bg-white p-3.5">
+            <div className="mt-5 rounded-xl border border-[#d8e6db] bg-white p-3.5">
               <p className="text-xs font-medium text-slate-500">Direct Invitation Link:</p>
               <div className="mt-1.5 flex items-center gap-2">
                 <input
                   readOnly
                   value={sentInvitation.inviteUrl}
-                  className="w-full bg-transparent font-mono text-xs text-slate-700 outline-none select-all"
+                  className="w-full bg-transparent font-mono text-xs text-[#0f140f] outline-none select-all"
                 />
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-700"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#0f140f] px-3.5 py-1.5 text-xs font-bold text-[#d4ff32] transition hover:bg-[#1a231b]"
                 >
                   {copied ? <Check size={14} /> : <Copy size={14} />}
                   <span>{copied ? 'Copied' : 'Copy Link'}</span>
@@ -137,17 +136,17 @@ export default function InviteMemberPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => setSentInvitation(null)}
-                className="rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-800"
+                className="rounded-xl bg-[#0f140f] px-4 py-2.5 text-xs font-bold text-[#d4ff32] shadow-xs hover:bg-[#1a231b]"
               >
                 Invite Another Member
               </button>
               <NavLink
                 to="/dashboard/admin"
-                className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-50"
+                className="rounded-xl border border-[#e4e8dc] bg-white px-4 py-2.5 text-xs font-semibold text-[#0f140f] hover:bg-[#fbfcf8]"
               >
                 View Workspace Members
               </NavLink>
@@ -156,7 +155,7 @@ export default function InviteMemberPage() {
         ) : (
           <form className="mt-7 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div>
-              <label htmlFor="invite-email" className="block text-sm font-medium text-slate-700">
+              <label htmlFor="invite-email" className="block text-sm font-semibold text-[#0f140f]">
                 Email Address
               </label>
               <div className="relative mt-1.5">
@@ -165,25 +164,25 @@ export default function InviteMemberPage() {
                 </div>
                 <input
                   id="invite-email"
-                  className="form-input !mt-0 !pl-10"
+                  className="w-full rounded-xl border border-[#e4e8dc] bg-white py-2.5 pl-10 pr-4 text-sm text-[#0f140f] placeholder-slate-400 outline-none transition focus:border-[#0f140f] focus:ring-2 focus:ring-[#d4ff32]/30"
                   type="email"
                   placeholder="teammate@company.com"
                   {...register('email')}
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-xs text-rose-600">{errors.email.message}</p>
+                <p className="mt-1 text-xs text-[#f07153] font-medium">{errors.email.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Assign Role</label>
+              <label className="block text-sm font-semibold text-[#0f140f]">Assign Role</label>
               <p className="mt-0.5 text-xs text-slate-500">
                 Choose the permissions this member will have in this workspace.
               </p>
 
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <label className="relative flex cursor-pointer rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-slate-300 focus-within:border-indigo-600 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/40">
+                <label className="relative flex cursor-pointer rounded-2xl border border-[#e4e8dc] bg-white p-4 shadow-xs transition hover:border-[#0f140f] focus-within:border-[#0f140f] has-[:checked]:border-[#0f140f] has-[:checked]:ring-1 has-[:checked]:ring-[#0f140f] has-[:checked]:bg-[#fbfcf8]">
                   <input
                     type="radio"
                     value="CREATOR"
@@ -191,11 +190,11 @@ export default function InviteMemberPage() {
                     {...register('role')}
                   />
                   <div className="flex gap-3">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-100 text-emerald-700">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#0f140f] text-[#d4ff32]">
                       <FileText size={17} />
                     </span>
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">Creator</p>
+                      <p className="text-sm font-bold text-[#0f140f]">Creator</p>
                       <p className="mt-0.5 text-xs text-slate-500 leading-normal">
                         Drafts content, runs brand checks, and addresses reviewer findings.
                       </p>
@@ -203,7 +202,7 @@ export default function InviteMemberPage() {
                   </div>
                 </label>
 
-                <label className="relative flex cursor-pointer rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-slate-300 focus-within:border-indigo-600 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/40">
+                <label className="relative flex cursor-pointer rounded-2xl border border-[#e4e8dc] bg-white p-4 shadow-xs transition hover:border-[#0f140f] focus-within:border-[#0f140f] has-[:checked]:border-[#0f140f] has-[:checked]:ring-1 has-[:checked]:ring-[#0f140f] has-[:checked]:bg-[#fbfcf8]">
                   <input
                     type="radio"
                     value="REVIEWER"
@@ -211,11 +210,11 @@ export default function InviteMemberPage() {
                     {...register('role')}
                   />
                   <div className="flex gap-3">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-800">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#0f140f] text-[#f07153]">
                       <CheckSquare size={17} />
                     </span>
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">Reviewer</p>
+                      <p className="text-sm font-bold text-[#0f140f]">Reviewer</p>
                       <p className="mt-0.5 text-xs text-slate-500 leading-normal">
                         Reviews queue drafts, verifies brand compliance, and approves publishing.
                       </p>
@@ -224,12 +223,12 @@ export default function InviteMemberPage() {
                 </label>
               </div>
               {errors.role && (
-                <p className="mt-1 text-xs text-rose-600">{errors.role.message}</p>
+                <p className="mt-1 text-xs text-[#f07153] font-medium">{errors.role.message}</p>
               )}
             </div>
 
-            <div className="rounded-xl bg-slate-50 p-4 text-xs text-slate-500">
-              <span className="font-semibold text-slate-700">Note:</span> Invitations include a
+            <div className="rounded-2xl border border-[#e4e8dc] bg-[#fbfcf8] p-4 text-xs text-slate-600">
+              <span className="font-bold text-[#0f140f]">Note:</span> Invitations include a
               secure one-time link valid for 7 days. If Resend credentials are not configured
               locally, the invite link will be shown directly above.
             </div>
@@ -237,11 +236,11 @@ export default function InviteMemberPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4ff32] px-4 py-3 text-sm font-bold text-[#0f140f] shadow-xs transition hover:bg-[#bfe818] active:scale-[0.98] disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin text-[#0f140f]" />
                   <span>Sending Invitation...</span>
                 </>
               ) : (
@@ -254,4 +253,3 @@ export default function InviteMemberPage() {
     </div>
   );
 }
-
